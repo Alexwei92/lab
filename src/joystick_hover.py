@@ -1,0 +1,65 @@
+#!/usr/bin/env python
+# Author: Peng Wei
+
+import rospy
+import tf
+import math
+
+from sensor_msgs.msg import Joy
+from geometry_msgs.msg import PostStamped
+
+class Joystick():
+	def __init__(self):
+		self.x_origin = -1.0
+		self.y_origin = 0.0
+		self.x_max 	  = 2.0
+		self.y_max 	  = 2.0
+		self.z_max 	  = 1.0
+		self.yaw_max  = 120
+
+		self.msg = PostStamped()
+		self.msg.header.seq = 0
+    	self.msg.header.stamp = rospy.Time.now()
+    	#self.start_time = rospy.Time()
+    	#self.start_time = self.msg.header.stamp
+    	self.msg.header.frame_id = "/world"
+    	self.msg.pose.position.x = self.x_origin
+    	self.msg.pose.position.y = self.y_origin
+    	self.msg.pose.position.z = self.z_max
+    	quaternion = tf.transformations.quaternion_from_euler(0, 0, 0)
+    	self.msg.pose.orientation.x = quaternion[0]
+    	self.msg.pose.orientation.y = quaternion[1]
+    	self.msg.pose.orientation.z = quaternion[2]
+    	self.msg.pose.orientation.w = quaternion[3]
+
+	def linear_map(self, x, r1_min, r1_max, r2_min, r2_max):
+		return (x-r1_min)/(r1_max-r1_min)*(r2_max-r2_min)+r2_min
+
+	def mapping(self, data):
+		self.msg.pose.position.x = linear_map(-data.axes[0],-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
+		self.msg.pose.position.y = linear_map( data.axes[1],-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
+		self.msg.pose.position.z = linear_map( data.axes[3],-1, 1, 0, self.z_max)
+
+		yaw = -linear_map(data.axes[2],-1, 1, -math.radius(yaw_max), math.radius(yaw_max))
+		quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
+		self.msg.pose.orientation.x = quaternion[0]
+		self.msg.pose.orientation.y = quaternion[1]
+		self.msg.pose.orientation.z = quaternion[2]
+		self.msg.pose.orientation.w = quaternion[3]
+
+
+if __name__ == '__main__':
+	rospy.init_node('joystick_hover')
+	name = rospy.get_param("~name", 'goal')     # publish to
+	r = rospy.get_param("~rate","50")	# frequency 
+	rate = rospy.Rate(r)
+	goal = Joystick()
+	rospy.loginfo("Mapping the joystick input")
+	rospy.Subscriber('/joy', Joy, joystick.mapping)
+	pub = rospy.Publisher(name, PoseStamped, queue_size=5)
+
+	while not rospy.is_shutdown():
+		goal.msg.header.seq += 1
+		goal.msg.header.stamp = rospy.Time.now()
+		pub.publish(goal.msg)
+		rate.sleep()
