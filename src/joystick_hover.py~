@@ -14,8 +14,8 @@ class Joystick():
 	def __init__(self):
 		self.x_origin = -1.0
 		self.y_origin = 0.0
-		self.x_max 	  = 1.0
-		self.y_max 	  = 1.0
+		self.x_max 	  = 2.0
+		self.y_max 	  = 2.0
 		self.z_max 	  = 1.0
 		self.yaw_max  = 120
 

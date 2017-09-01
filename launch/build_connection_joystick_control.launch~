@@ -39,7 +39,7 @@
 
     <node name="pose" pkg="lab" type="joystick_hover.py" output="screen">
 	<param name="name" value="goal"/>
-	<param name="rate" value="50"/>
+	<param name="rate" type="float" value="50"/>
     </node>
 
 
