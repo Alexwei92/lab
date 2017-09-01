@@ -1,0 +1,51 @@
+<launch>
+  <arg name="uri" default="radio://0/100/2M/E7E7E7E704" />
+  <arg name="joy_dev" default="/dev/input/js0" />
+  <arg name="frame" default="drone4"/>
+  <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
+
+  <!-- Optitrack Connection -->
+  <include file="$(find vrpn_client_ros)/launch/optitrack.launch" />
+  
+  <!-- Joystick -->
+  <node name="joy" pkg="joy" type="joy_node" output="screen">
+      <param name="dev" value="$(arg joy_dev)"/>
+  </node>	
+
+  <!-- Crazyflie Server-->
+  <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch" />
+  <group ns="crazyflie">
+    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
+        <param name="uri" value="$(arg uri)" />
+        <param name="tf_prefix" value="crazyflie" />
+        <param name="enable_logging_imu" value="false" />
+        <param name="enable_logging_temperature" value="false" />     
+        <param name="enable_logging_magnetic_field" value="false" />
+        <param name="enable_logging_pressure_field" value="false" />
+        <param name="enable_logging_battery" value="false" />
+    </node>
+  </group>
+
+    <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
+      <param name="joy_topic" value="joy"/>
+    </node>
+
+    <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
+        <param name="frame" value="$(arg frame)"/>
+        <param name="worldFrame" value="world"/>
+	<param name="pose" value="$(arg pose)"/>
+        <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
+    </node>
+
+    <node name="pose" pkg="lab" type="publish_goal.py" output="screen">
+	<param name="name" value="goal"/>
+	<param name="rate" value="50"/>
+	<param name="x" value="0.25"/>
+	<param name="y" value="0.25"/>
+	<param name="z" value="0.75"/>
+	<param name="yaw" value="0"/>
+    </node>
+
+
+</launch>
+
