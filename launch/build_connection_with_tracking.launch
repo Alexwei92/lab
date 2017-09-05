@@ -30,22 +30,20 @@
       <param name="joy_topic" value="joy"/>
     </node>
 
-    <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
-        <param name="frame" value="$(arg frame)"/>
-        <param name="worldFrame" value="world"/>
-	<param name="pose" value="$(arg pose)"/>
-        <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
-    </node>
-
-    <node name="pose" pkg="lab" type="publish_goal.py" output="screen">
+    <node name="pose" pkg="lab" type="static_goal.py" output="screen">
 	<param name="name" value="goal"/>
 	<param name="rate" value="50"/>
 	<param name="x" value="0.25"/>
 	<param name="y" value="0.25"/>
 	<param name="z" value="0.75"/>
-	<param name="yaw" value="0"/>
+	<param name="yaw" value="0.0"/>
     </node>
 
+    <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
+        <param name="target" value="goal"/>
+	<param name="pose" value="$(arg pose)"/>
+        <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
+    </node>
 
 </launch>
 

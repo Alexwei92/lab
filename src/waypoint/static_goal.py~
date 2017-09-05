@@ -5,12 +5,12 @@ import tf
 from geometry_msgs.msg import PoseStamped
 
 if __name__ == '__main__':
-    rospy.init_node('publish_pose', anonymous=True)
+    rospy.init_node('static_pose', anonymous=True)
     name = rospy.get_param("~name","/goal")     # publish to
-    r = rospy.get_param("~rate", 10)	# frequency
-    x = rospy.get_param("~x", 0.1)	# meter
-    y = rospy.get_param("~y", 0.1)	# meter
-    z = rospy.get_param("~z", 0.1)	# meter
+    r = rospy.get_param("~rate", 50)	# frequency
+    x = rospy.get_param("~x", -0.1)	# meter
+    y = rospy.get_param("~y", 0.0)	# meter
+    z = rospy.get_param("~z", 1.0)	# meter
     yaw = rospy.get_param("~yaw", 0.0)  # radian
 
     rate = rospy.Rate(r)
@@ -29,7 +29,8 @@ if __name__ == '__main__':
     msg.pose.orientation.z = quaternion[2]
     msg.pose.orientation.w = quaternion[3]
     
-    pub = rospy.Publisher(name, PoseStamped, queue_size=1)
+    pub = rospy.Publisher(name, PoseStamped, queue_size=5)
+
 	
     while not rospy.is_shutdown():
         msg.header.seq += 1

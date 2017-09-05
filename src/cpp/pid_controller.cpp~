@@ -223,12 +223,12 @@ private:
                 geometry_msgs::Twist msg;
 		// transform from world to body frame
 		float world_goal_position[3] = {
-            		m_goal.pose.position.x-m_current.pose.position.x,
-            		m_goal.pose.position.y-m_current.pose.position.y,
-            		m_goal.pose.position.z-m_current.pose.position.z};
+            m_goal.pose.position.x-m_current.pose.position.x,
+            m_goal.pose.position.y-m_current.pose.position.y,
+            m_goal.pose.position.z-m_current.pose.position.z};
 
 
-        	float body_goal_position[3]={0,0,0};
+        float body_goal_position[3]={0,0,0};
 		transform_world_to_body(
 			world_goal_position, 
 			body_goal_position, 

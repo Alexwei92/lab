@@ -1,9 +1,6 @@
 <launch>
   <arg name="uri" default="radio://0/100/2M/E7E7E7E705" />
   <arg name="joy_dev" default="/dev/input/js0" />
-
-  <!-- ROSAPI -->
-  <!-- node name="rosapi" pkg="rosapi" type="rosapi_node" /-->
   
   <!-- Joystick -->
   <node name="joy_node" pkg="joy" type="joy_node" output="screen">

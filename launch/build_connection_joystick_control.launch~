@@ -31,15 +31,14 @@
     </node>
 
     <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
-        <param name="frame" value="$(arg frame)"/>
-        <param name="worldFrame" value="world"/>
+        <param name="target" value="goal"/>
 	<param name="pose" value="$(arg pose)"/>
         <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
     </node>
 
     <node name="pose" pkg="lab" type="joystick_hover.py" output="screen">
 	<param name="name" value="goal"/>
-	<param name="rate" type="float" value="50"/>
+	<param name="rate" value="50"/>
     </node>
 
 
