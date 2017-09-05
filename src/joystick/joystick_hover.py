@@ -55,8 +55,8 @@ if __name__ == '__main__':
 	rate = rospy.Rate(r)
 	x_origin = rospy.get_param("~x_origin", -1.0)
 	y_origin = rospy.get_param("~y_origin", 0.0)
-	x_max = rospy.get_param("~x_max", 1.0)
-	y_max = rospy.get_param("~y_max", 1.0)
+	x_max = rospy.get_param("~x_max", 0.5)
+	y_max = rospy.get_param("~y_max", 0.5)
 	z_max = rospy.get_param("~z_max", 1.0)
 	yaw_max = rospy.get_param("~yaw_max", 120)
 

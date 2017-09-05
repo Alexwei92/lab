@@ -3,4 +3,4 @@
 set -xe
 
 rosbag record \
-	/vrpn_client_node/drone5/pose
+	/vrpn_client_node/drone4/pose

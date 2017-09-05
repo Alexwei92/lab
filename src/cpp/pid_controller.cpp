@@ -165,8 +165,7 @@ private:
             m_state=Automatic;
             m_pidZ.setIntegral(45000 / m_pidZ.ki());
 
-            /*
-		
+        /*
                 if (m_current.pose.position.z > m_startZ + 0.05 || m_thrust > 40000)
                 {
                     pidReset();
@@ -176,12 +175,12 @@ private:
                 }
                 else
                 {
-                    m_thrust += 40000 * dt;
+                    m_thrust += 10000 * dt;
                     geometry_msgs::Twist msg;
                     msg.linear.z = m_thrust;
                     m_pub.publish(msg);
                 }
-	*/
+*/
             }
             break;
         case Landing:

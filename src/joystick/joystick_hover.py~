@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Hovering control
+# Joystick control with a hovering point
 # Author: Peng Wei
 
 import rospy
