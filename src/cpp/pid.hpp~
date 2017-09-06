@@ -48,7 +48,7 @@ public:
 
     float update(float value, float targetValue)
     {
-	float ratio = 0.6;
+	float ratio = 0.7;
         ros::Time time = ros::Time::now();
         float dt = time.toSec() - m_previousTime.toSec();
         float error = targetValue - value;

@@ -9,7 +9,7 @@ from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 
 MAX_THROTTLE = 65535
-MIN_THROTTLE = 10000
+MIN_THROTTLE = 0
 
 class Joystick():
 	def __init__(self, Max_roll, Max_pitch, Max_yaw, Max_thrust, Min_thrust):
@@ -31,7 +31,7 @@ class Joystick():
 		self.twist.angular.z = -1*self.linear_map(data.axes[2],-1, 1, -self.Max_yaw, self.Max_yaw) 
 		# thrust mapping
 		if data.axes[3] < -0.80:
-			self.twist.linear.z = MIN_THROTTLE
+			self.twist.linear.z = 0
 		else:
 			self.twist.linear.z = self.linear_map(data.axes[3],-1, 1, MAX_THROTTLE*Min_thrust, MAX_THROTTLE*Max_thrust)
 

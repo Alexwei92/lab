@@ -19,7 +19,7 @@ if __name__ == '__main__':
     msg.header.seq = 0
     msg.header.stamp = rospy.Time.now()
     #start_time = msg.header.stamp
-    msg.header.frame_id = "/world"
+    msg.header.frame_id = "/static"
     msg.pose.position.x = x
     msg.pose.position.y = y
     msg.pose.position.z = z

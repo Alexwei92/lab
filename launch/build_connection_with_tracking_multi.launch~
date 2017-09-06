@@ -36,7 +36,7 @@
     <node name="pose" pkg="lab" type="static_goal.py" output="screen">
 	<param name="name" value="goal"/>
 	<param name="rate" value="30"/>
-	<param name="x" value="-0.1"/>
+	<param name="x" value="0.2"/>
 	<param name="y" value="0.0"/>
 	<param name="z" value="0.4"/>
 	<param name="yaw" value="0.0"/>

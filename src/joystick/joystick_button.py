@@ -4,13 +4,13 @@
 
 import rospy
 from sensor_msgs.msg import Joy
-from lab.srv import UpdateParams
+#from lab.srv import UpdateParams
 from std_srvs.srv import Empty
 
 class Controller():
     def __init__(self, joy_topic):
-        self._update_params = rospy.ServiceProxy('update_params', UpdateParams)
-	rospy.loginfo("created update_params service!")
+        # self._update_params = rospy.ServiceProxy('update_params', UpdateParams)
+	# rospy.loginfo("created update_params service!")
 
         self._emergency = rospy.ServiceProxy('emergency', Empty)
 	rospy.loginfo("created emergency service!")
@@ -21,8 +21,8 @@ class Controller():
         self._takeoff = rospy.ServiceProxy('takeoff', Empty)
 	rospy.loginfo("created takeoff service!")
 	
-	#self._switch = rospy.ServiceProxy('switch', Empty)
-	#rospy.loginfo("created switch service!")
+	self._switch = rospy.ServiceProxy('switch', Empty)
+	rospy.loginfo("created switch service!")
 
         # subscribe to the joystick at the end to make sure that all required
         # services were found
@@ -38,8 +38,8 @@ class Controller():
                     self._emergency()
                 if i == 2 and data.buttons[i] == 1:
                     self._takeoff()
-#		if i == 3 and data.buttons[i] == 1:
-#		    self._switch()
+ 		if i == 3 and data.buttons[i] == 1:
+		    self._switch()
 
         self._buttons = data.buttons
 

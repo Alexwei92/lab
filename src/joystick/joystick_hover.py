@@ -22,7 +22,7 @@ class Joystick():
 		self.msg.header.seq = 0
     		self.msg.header.stamp = rospy.Time.now()
     		#self.start_time = self.msg.header.stamp
-	    	self.msg.header.frame_id = "/world"
+	    	self.msg.header.frame_id = "/hover"
 	    	self.msg.pose.position.x = self.x_origin
 	    	self.msg.pose.position.y = self.y_origin
 	    	self.msg.pose.position.z = self.z_max
