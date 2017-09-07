@@ -12,9 +12,9 @@ import math
 
 class Joystick():
 	def __init__(self):
-		self.x_origin = -1.0
+		self.x_origin = 0.0
 		self.y_origin = 0.0
-		self.radius   = 1.0
+		self.radius   = 0.5
 
 		self.z_max    = 1.0
 		self.yaw      = 0.0
@@ -56,7 +56,7 @@ if __name__ == '__main__':
 	rospy.init_node('joystick_hover')
 	name = rospy.get_param("~name", 'goal')     # publish to
 	r = rospy.get_param("~rate","50.0")	    # frequency 
-	rate = rospy.Rate(50)
+	rate = rospy.Rate(r)
 
 	goal = Joystick()
 	rospy.loginfo("Start waypoint control")

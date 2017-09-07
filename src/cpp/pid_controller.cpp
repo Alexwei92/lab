@@ -163,7 +163,7 @@ private:
 
             pidReset();
             m_state=Automatic;
-            // m_pidZ.setIntegral(40000 / m_pidZ.ki());
+            m_pidZ.setIntegral(40000 / m_pidZ.ki());
 
         /*
                 if (m_current.pose.position.z > m_startZ + 0.05 || m_thrust > 40000)
@@ -235,8 +235,8 @@ private:
             //ROS_INFO("MY: %.4f, %.4f, %.4f %.4f",body_goal_position[0],body_goal_position[1],body_goal_position[2],yaw);
             msg.linear.x = m_pidX.update(0.0, body_goal_position[0]);
             msg.linear.y = m_pidY.update(0.0, body_goal_position[1]);
-            msg.linear.z = m_pidZ.update(0.0, body_goal_position[2]) + 40000;
-	    msg.linear.z = std::max(std::min(msg.linear.z, 60000.0), 0.0);
+            msg.linear.z = m_pidZ.update(0.0, body_goal_position[2]);
+            //msg.linear.z = std::max(std::min(msg.linear.z, 60000.0), 0.0);
             msg.angular.z = m_pidYaw.update(yaw, yaw_goal);
             m_pub.publish(msg);
             }

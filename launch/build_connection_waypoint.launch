@@ -38,7 +38,7 @@
 
     <node name="pose" pkg="lab" type="waypoint.py" output="screen">
 	<param name="name" value="goal"/>
-	<param name="rate" value="50"/>
+	<param name="rate" value="30"/>
     </node>
 
 </launch>

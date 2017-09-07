@@ -12,9 +12,9 @@ import math
 
 class Joystick():
 	def __init__(self):
-		self.x_origin = -1.0
+		self.x_origin = 0.0
 		self.y_origin = 0.0
-		self.radius   = 1.0
+		self.radius   = 0.5
 
 		self.z_max    = 1.0
 		self.yaw      = 0.0
@@ -40,8 +40,8 @@ class Joystick():
 		current_time = rospy.Time.now()
 		dt = current_time.to_sec() - self.start_time.to_sec();
 
-		self.msg.pose.position.x = self.radius*math.cos(0.4*math.pi*dt) + self.x_origin
-		self.msg.pose.position.y = self.radius*math.sin(0.4*math.pi*dt) + self.y_origin
+		self.msg.pose.position.x = self.radius*math.cos(0.2*math.pi*dt) + self.x_origin
+		self.msg.pose.position.y = self.radius*math.sin(0.2*math.pi*dt) + self.y_origin
 		self.msg.pose.position.z = 0.5
 		# rospy.loginfo("Time: %f, x = %f, y= %f, z= %f", dt, self.msg.pose.position.x, self.msg.pose.position.y,self.msg.pose.position.z)
 		# yaw =  0.0;
@@ -56,11 +56,11 @@ if __name__ == '__main__':
 	rospy.init_node('joystick_hover')
 	name = rospy.get_param("~name", 'goal')     # publish to
 	r = rospy.get_param("~rate","50.0")	    # frequency 
-	rate = rospy.Rate(50)
+	rate = rospy.Rate(r)
 
 	goal = Joystick()
 	rospy.loginfo("Start waypoint control")
-	pub = rospy.Publisher(name, PoseStamped, queue_size=1)
+	pub = rospy.Publisher(name, PoseStamped, queue_size=20)
 
 	while not rospy.is_shutdown():
 		goal.msg.header.seq += 1

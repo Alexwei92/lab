@@ -1,5 +1,5 @@
 <launch>
-  <arg name="uri" default="radio://0/100/2M/E7E7E7E704" />
+  <arg name="uri" default="radio://0/100/2M/E7E7E7E705" />
   <arg name="joy_dev" default="/dev/input/js0" />
   <arg name="frame" default="drone5"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
@@ -38,7 +38,7 @@
 
     <node name="pose" pkg="lab" type="waypoint.py" output="screen">
 	<param name="name" value="goal"/>
-	<param name="rate" value="50"/>
+	<param name="rate" value="30"/>
     </node>
 
 </launch>

@@ -41,6 +41,5 @@
 	<param name="rate" value="50"/>
     </node>
 
-
 </launch>
 
