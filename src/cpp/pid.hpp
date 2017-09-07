@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ros/ros.h>
+#include <cmath>
 
 class PID
 {
@@ -52,11 +53,14 @@ public:
         ros::Time time = ros::Time::now();
         float dt = time.toSec() - m_previousTime.toSec();
         float error = targetValue - value;
-        m_integral += error * dt;
-        m_integral = std::max(std::min(m_integral, m_integratorMax), m_integratorMin);
+	float error_dot = error*dt;
+	m_integral += fabs(error_dot)>m_integratorMax?error_dot:0.0;
+        // m_integral += error * dt;
+        // m_integral = std::max(std::min(m_integral, m_integratorMax), m_integratorMin);
         float p = m_kp * error;
         float d = 0;
 	float m_difference = (error - m_previousError) / dt;
+	m_difference = fabs(m_difference)>m_integratorMax?m_difference:0.0;
         if (dt > 0)
         {
             m_previous_LP_Diff = ratio*m_difference + (1-ratio)*m_previous_LP_Diff;
