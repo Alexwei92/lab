@@ -76,9 +76,9 @@ public:
         , m_endZ(0)
     {
         ros::NodeHandle n1;
-        m_pub = n1.advertise<geometry_msgs::Twist>("/crazyflie/cmd_vel", 1);
+        m_pub = n1.advertise<geometry_msgs::Twist>("cmd_vel", 1);
         m_subscribeGoal = n1.subscribe(m_target, 1, &Controller::update_goal, this);
-	m_subscribeCurrent = n1.subscribe(m_pose,1, &Controller::update_current, this);
+        m_subscribeCurrent = n1.subscribe(m_pose,1, &Controller::update_current, this);
 
         m_serviceTakeoff = n1.advertiseService("takeoff", &Controller::takeoff, this);
         m_serviceLand = n1.advertiseService("land", &Controller::land, this);
@@ -106,7 +106,6 @@ private:
 
     bool takeoff(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
     {
-        ROS_INFO("Takeoff requested!");
         m_state = TakingOff;
         m_startZ = m_current.pose.position.z;
         return true;
@@ -114,7 +113,6 @@ private:
 
     bool land(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
     {
-        ROS_INFO("Landing requested!");
         m_state = Landing;
         m_endZ = m_current.pose.position.z;
         return true;
@@ -122,7 +120,6 @@ private:
 
     bool emergency(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res)
     {
-        ROS_INFO("Emergency requested!");
         m_state = Emergency;
         return true;
     }

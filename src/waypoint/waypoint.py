@@ -40,15 +40,15 @@ class Joystick():
 		current_time = rospy.Time.now()
 		dt = current_time.to_sec() - self.start_time.to_sec();
 		
-		if (dt <= 10.0 or dt >= 30.0):		
+		if (dt <= 10.0 or dt >= 50.0):		
 			self.msg.pose.position.x = self.radius*math.cos(0.0) + self.x_origin
 			self.msg.pose.position.y = self.radius*math.sin(0.0) + self.y_origin
 			self.msg.pose.position.z = 0.5
-		elif (dt > 10.0 and dt < 30.0):
+		elif (dt > 10.0 and dt < 50.0):
 			self.msg.pose.position.x = self.radius*math.cos(0.4*math.pi*dt) + self.x_origin
 			self.msg.pose.position.y = self.radius*math.sin(0.4*math.pi*dt) + self.y_origin
 			self.msg.pose.position.z = 0.5
-		rospy.loginfo("Time: %f, x = %f, y= %f, z= %f", dt, self.msg.pose.position.x, self.msg.pose.position.y,self.msg.pose.position.z)
+		# rospy.loginfo("Time: %f, x = %f, y= %f, z= %f", dt, self.msg.pose.position.x, self.msg.pose.position.y,self.msg.pose.position.z)
 		# yaw =  0.0;
 		# quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
 		# self.msg.pose.orientation.x = quaternion[0]

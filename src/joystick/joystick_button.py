@@ -4,20 +4,19 @@
 
 import rospy
 from sensor_msgs.msg import Joy
-#from lab.srv import UpdateParams
 from std_srvs.srv import Empty
 
 class Controller():
     def __init__(self, joy_topic):
-        # self._update_params = rospy.ServiceProxy('update_params', UpdateParams)
-	# rospy.loginfo("created update_params service!")
-
+	rospy.wait_for_service('emergency')
         self._emergency = rospy.ServiceProxy('emergency', Empty)
 	rospy.loginfo("created emergency service!")
-
+	
+	rospy.wait_for_service('land')
         self._land = rospy.ServiceProxy('land', Empty)
  	rospy.loginfo("created land service!")
 
+	rospy.wait_for_service('takeoff')
         self._takeoff = rospy.ServiceProxy('takeoff', Empty)
 	rospy.loginfo("created takeoff service!")
 	
@@ -34,12 +33,16 @@ class Controller():
             if self._buttons == None or data.buttons[i] != self._buttons[i]:
                 if i == 0 and data.buttons[i] == 1:
                     self._land()
+		    rospy.loginfo("Landing requested!")
                 if i == 1 and data.buttons[i] == 1:
                     self._emergency()
+		    rospy.loginfo("Emergency requested!")
                 if i == 2 and data.buttons[i] == 1:
                     self._takeoff()
+		    rospy.loginfo("TakeOff requested!")
  		if i == 3 and data.buttons[i] == 1:
 		    self._switch()
+		    rospy.loginfo("Switch Requested!")
 
         self._buttons = data.buttons
 

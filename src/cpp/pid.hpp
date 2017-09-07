@@ -60,13 +60,14 @@ public:
         float p = m_kp * error;
         float d = 0;
         float m_difference = (error - m_previousError) / dt;
-    //m_difference = fabs(m_difference)>m_integratorMax?m_difference:0.0;
+        //m_difference = fabs(m_difference)>m_integratorMax?m_difference:0.0;
         if (dt > 0)
         {
             m_previous_LP_Diff = ratio*m_difference + (1-ratio)*m_previous_LP_Diff;
 	    d = m_kd * m_previous_LP_Diff;
         }
         float i = m_ki * m_integral;
+        ROS_INFO("m_integral: %f", m_integral);
         float output = p + d + i;
         m_previousError = error;
         m_previousTime = time;
