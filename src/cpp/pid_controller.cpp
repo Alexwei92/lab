@@ -163,7 +163,7 @@ private:
 
             pidReset();
             m_state=Automatic;
-            m_pidZ.setIntegral(40000 / m_pidZ.ki());
+            m_pidZ.setIntegral(45000 / m_pidZ.ki());
 
         /*
                 if (m_current.pose.position.z > m_startZ + 0.05 || m_thrust > 40000)
