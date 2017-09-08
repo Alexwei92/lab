@@ -76,7 +76,7 @@ public:
         , m_endZ(0)
     {
         ros::NodeHandle n1;
-        m_pub = n1.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+        m_pub = n1.advertise<geometry_msgs::Twist>("cmd_vel", 10);
         m_subscribeGoal = n1.subscribe(m_target, 1, &Controller::update_goal, this);
         m_subscribeCurrent = n1.subscribe(m_pose,1, &Controller::update_current, this);
 
