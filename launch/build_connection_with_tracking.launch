@@ -1,7 +1,7 @@
 <launch>
-  <arg name="uri" default="radio://0/100/2M/E7E7E7E705" />
+  <arg name="uri" default="radio://0/100/2M/E7E7E7E704" />
   <arg name="joy_dev" default="/dev/input/js0" />
-  <arg name="frame" default="drone5"/>
+  <arg name="frame" default="drone4"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
 
   <!-- Optitrack Connection -->
@@ -24,10 +24,9 @@
         <param name="enable_logging_pressure_field" value="false" />
         <param name="enable_logging_battery" value="false" />
     </node>
-  </group>
 
     <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
-      <param name="joy_topic" value="joy"/>
+      <param name="joy_topic" value="/joy"/>
     </node>
 
     <node name="pose" pkg="lab" type="static_goal.py" output="screen">
@@ -45,5 +44,8 @@
         <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
     </node>
 
+  </group>
+
+    
 </launch>
 

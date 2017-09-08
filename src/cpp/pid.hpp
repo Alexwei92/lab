@@ -67,7 +67,7 @@ public:
 	    d = m_kd * m_previous_LP_Diff;
         }
         float i = m_ki * m_integral;
-        ROS_INFO("m_integral: %f", m_integral);
+        //ROS_INFO("m_integral: %f", m_integral);
         float output = p + d + i;
         m_previousError = error;
         m_previousTime = time;
