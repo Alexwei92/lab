@@ -12,6 +12,10 @@
       <param name="dev" value="$(arg joy_dev)"/>
   </node>	
 
+  <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
+      <param name="joy_topic" value="/joy"/>
+  </node>
+
   <!-- Crazyflie Server-->
   <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch" />
   <group ns="crazyflie">
@@ -25,20 +29,18 @@
         <param name="enable_logging_battery" value="false" />
     </node>
 
-    <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
-      <param name="joy_topic" value="/joy"/>
-    </node>
+
 
     <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
         <param name="target" value="goal"/>
 	<param name="pose" value="$(arg pose)"/>
-	<param name="frequency" value="100"/>
+	<param name="frequency" value="150"/>
         <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
     </node>
 
-    <node name="pose" pkg="lab" type="joystick_hover.py" output="screen">
+    <node name="pose" pkg="lab" type="joystick_switch.py" output="screen">
 	<param name="name" value="goal"/>
-	<param name="rate" value="50"/>
+	<param name="rate" value="150"/>
     </node>
    </group>
 

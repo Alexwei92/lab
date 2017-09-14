@@ -6,7 +6,7 @@ import rospy
 import tf
 import math
 
-from std_srvs.srv import Empty
+from std_srvs.srv import Empty, EmptyResponse
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import PoseStamped
 from lab.msg import Joyfilter
@@ -24,24 +24,30 @@ class Switch():
 		self.joy.axes1 = -0.0
 		self.joy.axes2 = -0.0
 		self.joy.axes3 = -1.0
+		self.state = 'static-hover'
 
 		self.msg = PoseStamped()
 		self.msg.header.seq = 0
     		self.msg.header.stamp = rospy.Time.now()
     		#self.start_time = self.msg.header.stamp
-	    	self.msg.header.frame_id = "/hover"
-	    	self.msg.pose.position.x = self.x_origin
-	    	self.msg.pose.position.y = self.y_origin
-	    	self.msg.pose.position.z = self.z_max
-	    	quaternion = tf.transformations.quaternion_from_euler(0, 0, 0)
+	    	self.msg.header.frame_id = "/world"
+	    	self.msg.pose.position.x = 0.0
+	    	self.msg.pose.position.y = 0.0
+	    	self.msg.pose.position.z = 0.5
+	    	quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
 	    	self.msg.pose.orientation.x = quaternion[0]
 	    	self.msg.pose.orientation.y = quaternion[1]
 	    	self.msg.pose.orientation.z = quaternion[2]
 	    	self.msg.pose.orientation.w = quaternion[3]
-		rospy.Service('switch', Empty, self.call_switch)
+		rospy.Service('static_hover', Empty, self.switch2static)
+		rospy.Service('dynamic_hover', Empty, self.switch2dynamic)
 
-	def call_switch(self, req):
-		rospy.loginfo('Yes!')	
+	def switch2static(self, req):
+		self.state = 'static-hover'
+		return EmptyResponse()
+	def switch2dynamic(self, req):
+		self.state = 'dynamic-hover'
+		return EmptyResponse()
 
 	def filter_joy(self, data):
 		a = 0.2
@@ -58,22 +64,26 @@ class Switch():
 		return output
 
 	def mapping(self,data):
-		joy = self.filter_joy(data)
-		#self.msg.pose.position.x = self.linear_map(-data.axes[0],-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
-		#self.msg.pose.position.y = self.linear_map( data.axes[1],-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
-		#self.msg.pose.position.z = self.linear_map( data.axes[3],-1, 1, 0, self.z_max)
-		#yaw =  self.linear_map(data.axes[2],-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
-		
-		self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
-		self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
-		self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0, self.z_max)
-		yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
-		
-		quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
-		self.msg.pose.orientation.x = quaternion[0]
-		self.msg.pose.orientation.y = quaternion[1]
-		self.msg.pose.orientation.z = quaternion[2]
-		self.msg.pose.orientation.w = quaternion[3]
+		if self.state == 'static-hover':
+			self.msg.pose.position.x = 0.0
+			self.msg.pose.position.y = 0.0
+			self.msg.pose.position.z = 0.5
+			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
+			self.msg.pose.orientation.x = quaternion[0]
+			self.msg.pose.orientation.y = quaternion[1]
+			self.msg.pose.orientation.z = quaternion[2]
+			self.msg.pose.orientation.w = quaternion[3]
+		elif self.state == 'dynamic-hover':
+			joy = self.filter_joy(data)		
+			self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
+			self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
+			self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0, self.z_max)
+			yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
+			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
+			self.msg.pose.orientation.x = quaternion[0]
+			self.msg.pose.orientation.y = quaternion[1]
+			self.msg.pose.orientation.z = quaternion[2]
+			self.msg.pose.orientation.w = quaternion[3]
 
 
 if __name__ == '__main__':
@@ -96,19 +106,6 @@ if __name__ == '__main__':
 	while not rospy.is_shutdown():
 		goal.msg.header.seq += 1
 		goal.msg.header.stamp = rospy.Time.now()
-		pub.publish(goal.msg)
-		rate.sleep()
-	# rospy.Subscriber(node1, PoseStamped, copy)	
-	# rospy.Subscriber(node2, PoseStamped, copy)
-	
-	goal = Switch()
-	rospy.Subscriber('/joy', Joy, goal.mapping)
-	
-	pub = rospy.Publisher(target, PoseStamped, queue_size=5)
-	r = rospy.get_param("~rate", 50)
-	rate = rospy.Rate(r)
-
-	while not rospy.is_shutdown():
 		pub.publish(goal.msg)
 		rate.sleep()
 

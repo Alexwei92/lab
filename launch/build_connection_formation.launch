@@ -34,6 +34,7 @@
     <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
         <param name="target" value="/goal1"/>
 	<param name="pose" value="$(arg pose1)"/>
+	<param name="frequency" value="100"/>
         <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
     </node>
 
@@ -56,6 +57,7 @@
     <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
         <param name="target" value="/goal2"/>
 	<param name="pose" value="$(arg pose2)"/>
+	<param name="frequency" value="100"/>
         <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
     </node>
 
@@ -78,6 +80,7 @@
     <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
         <param name="target" value="/goal3"/>
 	<param name="pose" value="$(arg pose3)"/>
+	<param name="frequency" value="100"/>
         <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
     </node>
 
@@ -87,15 +90,6 @@
   </group>
 
     <node name="formation" pkg="lab" type="formation.py" output="screen">
-	<param name="rate" value="50"/>
+	<param name="rate" value="100"/>
     </node>
-
-    <!--node name="switch" pkg="lab" type="joystick_switch" output="screen">
-	<param name="node1" value="goal1"/>
-	<param name="node2" value="goal2"/>
-	<param name="target" value="goal"/>
-	<param name="rate" value="30"/>
-    </node-->
-
 </launch>
-

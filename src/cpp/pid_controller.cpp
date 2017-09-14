@@ -73,6 +73,8 @@ public:
         , m_serviceEmergency()
         , m_thrust(0)
         , m_startZ(0)
+        , m_endX(0)
+        , m_endY(0)
         , m_endZ(0)
     {
         ros::NodeHandle n1;
@@ -82,7 +84,7 @@ public:
 
         m_serviceTakeoff = n1.advertiseService("takeoff", &Controller::takeoff, this);
         m_serviceLand = n1.advertiseService("land", &Controller::land, this);
-        m_serviceEmergency = n1.advertiseService("emergency", &Controller::emergency, this);      
+        m_serviceEmergency = n1.advertiseService("emergency", &Controller::emergency, this);
 
     }
 
@@ -115,6 +117,8 @@ private:
     {
         m_state = Landing;
         m_endZ = m_current.pose.position.z;
+        m_endX = m_current.pose.position.x;
+        m_endY = m_current.pose.position.y;
         return true;
     }
 
@@ -182,9 +186,10 @@ private:
             break;
         case Landing:
             {
-
                 m_endZ = m_endZ - 0.15 * dt;
                 //m_endZ = m_endZ>0?m_endZ:0.0f;
+                m_goal.pose.position.x = m_endX;
+                m_goal.pose.position.y = m_endY;
                 m_goal.pose.position.z = m_endZ;
                 //ROS_INFO("m_endZ: %f",m_endZ);
 
@@ -285,6 +290,8 @@ private:
 	
     float m_thrust;
     float m_startZ;
+    float m_endX;
+    float m_endY;
     float m_endZ;
 };
 

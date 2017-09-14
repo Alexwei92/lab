@@ -8,8 +8,8 @@ from crazyflie_driver.srv import UpdateParams
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 
-MAX_THROTTLE = 65535
-MIN_THROTTLE = 0
+MAX_THROTTLE = 60000
+MIN_THROTTLE = 10000
 
 class Joystick():
 	def __init__(self, Max_roll, Max_pitch, Max_yaw, Max_thrust, Min_thrust):
@@ -20,11 +20,17 @@ class Joystick():
 		self.Min_thrust = Min_thrust
 		self.twist = Twist()
 		self.i = 0
+		self.joy = Joyfilter()
+		self.joy.axes0 = -0.0
+		self.joy.axes1 = -0.0
+		self.joy.axes2 = -0.0
+		self.joy.axes3 = -1.0
 
 	def linear_map(self, x, r1_min, r1_max, r2_min, r2_max):
 		return (x-r1_min)/(r1_max-r1_min)*(r2_max-r2_min)+r2_min
 
 	def mapping(self, data):
+
 		# roll, pitch, yaw mapping
 		self.twist.linear.y  = -1*self.linear_map(data.axes[0],-1, 1, -self.Max_roll, self.Max_roll) 
 		self.twist.linear.x  =  1*self.linear_map(data.axes[1],-1, 1, -self.Max_pitch, self.Max_pitch)
@@ -33,8 +39,7 @@ class Joystick():
 		if data.axes[3] < -0.80:
 			self.twist.linear.z = 0
 		else:
-			self.twist.linear.z = self.linear_map(data.axes[3],-1, 1, MAX_THROTTLE*Min_thrust, MAX_THROTTLE*Max_thrust)
-
+			self.twist.linear.z = self.linear_map(data.axes[3],-1, 1, 0, MAX_THROTTLE)
 
 if __name__ == '__main__':
 	rospy.init_node('joystick_control')
