@@ -20,6 +20,7 @@ class Controller():
         self._takeoff = rospy.ServiceProxy('takeoff', Empty)
 	rospy.loginfo("created takeoff service!")
 	
+	rospy.wait_for_service('switch')
 	self._switch = rospy.ServiceProxy('switch', Empty)
 	rospy.loginfo("created switch service!")
 

@@ -20,6 +20,7 @@ class Controller():
         self._takeoff = rospy.ServiceProxy('takeoff', Empty)
 	rospy.loginfo("created takeoff service!")
 	
+	rospy.wait_for_service('switch')
 	self._switch = rospy.ServiceProxy('switch', Empty)
 	rospy.loginfo("created switch service!")
 
@@ -33,15 +34,16 @@ class Controller():
             if self._buttons == None or data.buttons[i] != self._buttons[i]:
                 if i == 0 and data.buttons[i] == 1:
                     self._land()
-		    rospy.loginfo("Landing requested")
+		    rospy.loginfo("Landing requested!")
                 if i == 1 and data.buttons[i] == 1:
                     self._emergency()
-		    rospy.loginfo("Emergency requested")
+		    rospy.loginfo("Emergency requested!")
                 if i == 2 and data.buttons[i] == 1:
                     self._takeoff()
-		    rospy.loginfo("TakeOff requested")
+		    rospy.loginfo("TakeOff requested!")
  		if i == 3 and data.buttons[i] == 1:
 		    self._switch()
+		    rospy.loginfo("Switch Requested!")
 
         self._buttons = data.buttons
 
