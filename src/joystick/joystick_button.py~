@@ -20,15 +20,20 @@ class Controller():
         self._takeoff = rospy.ServiceProxy('takeoff', Empty)
 	#rospy.loginfo("created takeoff service!")
 	
-	rospy.wait_for_service('/static_hover')
+	#rospy.wait_for_service('/static_hover')
 	self._switch2static = rospy.ServiceProxy('/static_hover', Empty)
-	#rospy.loginfo("created switch service!")
 	
-	rospy.wait_for_service('/dynamic_hover')
+	#rospy.wait_for_service('/dynamic_hover')
 	self._switch2dynamic = rospy.ServiceProxy('/dynamic_hover', Empty)
+
+	#rospy.wait_for_service('/line_formation')
+	self._switch2line = rospy.ServiceProxy('/line_formation', Empty)
+
+
         # subscribe to the joystick at the end to make sure that all required
         # services were found
         self._buttons = None
+	rospy.set_param('/state','ideal')
         rospy.Subscriber(joy_topic, Joy, self._joyChanged)
 
     def _joyChanged(self, data):
@@ -36,12 +41,15 @@ class Controller():
             if self._buttons == None or data.buttons[i] != self._buttons[i]:
                 if i == 0 and data.buttons[i] == 1:
                     self._land()
+		    rospy.set_param('/state','land')
 		    rospy.loginfo("Landing requested!")
                 if i == 1 and data.buttons[i] == 1:
                     self._emergency()
+		    rospy.set_param('/state','emergency')
 		    rospy.loginfo("Emergency requested!")
                 if i == 2 and data.buttons[i] == 1:
                     self._takeoff()
+		    rospy.set_param('/state','takeoff')
 		    rospy.loginfo("TakeOff requested!")
  		if i == 3 and data.buttons[i] == 1:
 		    self._switch2static()
@@ -49,6 +57,9 @@ class Controller():
  		if i == 4 and data.buttons[i] == 1:
 		    self._switch2dynamic()
 		    rospy.loginfo("Switch to Dynamic Hover!")
+		if i == 5 and data.buttons[i] == 1:
+		    self._switch2line()
+		    rospy.loginfo("Switch to line formation!")
         self._buttons = data.buttons
 
 if __name__ == '__main__':

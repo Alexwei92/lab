@@ -22,10 +22,14 @@ class Controller():
 	
 	#rospy.wait_for_service('/static_hover')
 	self._switch2static = rospy.ServiceProxy('/static_hover', Empty)
-	#rospy.loginfo("created switch service!")
 	
 	#rospy.wait_for_service('/dynamic_hover')
 	self._switch2dynamic = rospy.ServiceProxy('/dynamic_hover', Empty)
+
+	#rospy.wait_for_service('/line_formation')
+	self._switch2line = rospy.ServiceProxy('/line_formation', Empty)
+
+
         # subscribe to the joystick at the end to make sure that all required
         # services were found
         self._buttons = None
@@ -49,6 +53,9 @@ class Controller():
  		if i == 4 and data.buttons[i] == 1:
 		    self._switch2dynamic()
 		    rospy.loginfo("Switch to Dynamic Hover!")
+		if i == 5 and data.buttons[i] == 1:
+		    self._switch2line()
+		    rospy.loginfo("Switch to line formation!")
         self._buttons = data.buttons
 
 if __name__ == '__main__':
