@@ -57,19 +57,23 @@ class Formation():
 		rospy.Service('/static_hover', Empty, self.switch2static)
 		rospy.Service('/dynamic_hover', Empty, self.switch2dynamic)
 		rospy.Service('/line_formation', Empty, self.switch2line)
+		
 
 	def switch2static(self, req):
 		self.state = 'static-hover'
 		self.psi = 0.0
+		rospy.loginfo("Switch to static hover!")
 		return EmptyResponse()
 
 	def switch2dynamic(self, req):
 		self.state = 'dynamic-hover'
 		self.start_time = rospy.Time.now()
+		rospy.loginfo("Switch to dynamic hover!")
 		return EmptyResponse()
 
 	def switch2line(self, req):
 		self.state = 'line-formation'
+		rospy.loginfo("Switch to line formation!")
 		return EmptyResponse()
 
 	def rotation(self, source, phi, theta, psi):
@@ -123,6 +127,9 @@ class Formation():
 		if abs(output)<1e-3:
 			output = 0.0
 		return output
+	
+	def update_data(self, data):
+		self.data = data
 
 	def update(self):
 		self.r1 = [0.577, 0.0, 0.0]
@@ -154,7 +161,7 @@ class Formation():
 				self.msg.pose.position.x = self.x_leader
 		    		self.msg.pose.position.y = self.y_leader
 		    		self.msg.pose.position.z = self.z_leader
-				yaw = dt*0.3
+				yaw = (dt-2.0)*0.3
 				quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
 				self.msg.pose.orientation.x = quaternion[0]
 				self.msg.pose.orientation.y = quaternion[1]
@@ -168,28 +175,29 @@ class Formation():
 			self.r1 = [0.0, 0.0, 0.0]
 			self.r2 = [0.0, 0.75, 0.0]
 			self.r3 = [0.0, -0.75, 0.0]
-			# joy = self.filter_joy(self.data)
-			# self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_leader-self.x_max, self.x_leader+self.x_max)
-			# self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_leader-self.y_max, self.y_leader+self.y_max)
-			# self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0, self.z_max)
-			# yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
-			# quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
-			# self.msg.pose.orientation.x = quaternion[0]
-			# self.msg.pose.orientation.y = quaternion[1]
-			# self.msg.pose.orientation.z = quaternion[2]
-			# self.msg.pose.orientation.w = quaternion[3]
-			# self.phi 	= 0.0
-			# self.theta  = 0.0
-			# self.psi 	= yaw
+			joy = self.filter_joy(self.data)
+			self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_leader-self.x_max, self.x_leader+self.x_max)
+			self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_leader-self.y_max, self.y_leader+self.y_max)
+			self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0, self.z_max)
+			yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
+			quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
+			self.msg.pose.orientation.x = quaternion[0]
+			self.msg.pose.orientation.y = quaternion[1]
+			self.msg.pose.orientation.z = quaternion[2]
+			self.msg.pose.orientation.w = quaternion[3]
+			self.phi 	= 0.0
+			self.theta  	= 0.0
+			self.psi 	= yaw
 			#rospy.loginfo("Time: %f, x = %f, y= %f, z= %f", dt, self.msg.pose.position.x, self.msg.pose.position.y,self.msg.pose.position.z)
 
 if __name__ == '__main__':
 	rospy.init_node('formation')
 	name = rospy.get_param("~name", "/goal")     # publish to
-	r 	 = rospy.get_param("~rate", 50.0)	    # frequency 
+	r    = rospy.get_param("~rate", 50.0)	    # frequency 
 	rate = rospy.Rate(r)
 	
 	goal = Formation()
+	rospy.Subscriber('/joy', Joy, goal.update_data)
 	#pub  = rospy.Publisher("/goal", PoseStamped, queue_size=5)
 	pub1 = rospy.Publisher("/goal1", PoseStamped, queue_size=5)
 	pub2 = rospy.Publisher("/goal2", PoseStamped, queue_size=5)

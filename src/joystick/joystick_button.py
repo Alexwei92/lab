@@ -40,22 +40,22 @@ class Controller():
             if self._buttons == None or data.buttons[i] != self._buttons[i]:
                 if i == 0 and data.buttons[i] == 1:
                     self._land()
-		    rospy.loginfo("Landing requested!")
+		    #rospy.loginfo("Landing requested!")
                 if i == 1 and data.buttons[i] == 1:
                     self._emergency()
-		    rospy.loginfo("Emergency requested!")
+		    #rospy.loginfo("Emergency requested!")
                 if i == 2 and data.buttons[i] == 1:
                     self._takeoff()
-		    rospy.loginfo("TakeOff requested!")
+		    #rospy.loginfo("TakeOff requested!")
  		if i == 3 and data.buttons[i] == 1:
 		    self._switch2static()
-		    rospy.loginfo("Switch to Static Hover!")
+		    #rospy.loginfo("Switch to Static Hover!")
  		if i == 4 and data.buttons[i] == 1:
 		    self._switch2dynamic()
-		    rospy.loginfo("Switch to Dynamic Hover!")
+		    #rospy.loginfo("Switch to Dynamic Hover!")
 		if i == 5 and data.buttons[i] == 1:
 		    self._switch2line()
-		    rospy.loginfo("Switch to line formation!")
+		    #rospy.loginfo("Switch to line formation!")
         self._buttons = data.buttons
 
 if __name__ == '__main__':
