@@ -55,6 +55,7 @@ add_message_files(
   FILES
   BodyInfo.msg
   Joyfilter.msg
+  Error.msg
 )
 
 ## Generate services in the 'srv' folder

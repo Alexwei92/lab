@@ -3,6 +3,7 @@
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <lab/Error.h>
 #include <math.h>
 
 
@@ -76,9 +77,11 @@ public:
         , m_endX(0)
         , m_endY(0)
         , m_endZ(0)
+        , m_time()
     {
         ros::NodeHandle n1;
         m_pub = n1.advertise<geometry_msgs::Twist>("cmd_vel", 10);
+        m_puberror = n1.advertise<lab::Error>("error", 10);
         m_subscribeGoal = n1.subscribe(m_target, 1, &Controller::update_goal, this);
         m_subscribeCurrent = n1.subscribe(m_pose,1, &Controller::update_current, this);
 
@@ -142,7 +145,7 @@ private:
 	const float phi,
     	const float theta,
 	const float psi)
-    {
+    {ros::Publisher m_pub;
 	float sp    = sinf(phi);
 	float cp    = cosf(phi);
 	float st    = sinf(theta);
@@ -165,6 +168,7 @@ private:
             pidReset();
             m_state=Automatic;
             m_pidZ.setIntegral(45000 / m_pidZ.ki());
+            m_time = ros::Time::now();
 
         /*
                 if (m_current.pose.position.z > m_startZ + 0.05 || m_thrust > 40000)
@@ -235,6 +239,14 @@ private:
 			body_goal_position, 
             		roll, pitch, yaw);
             //ROS_INFO("MY: %.4f, %.4f, %.4f %.4f",body_goal_position[0],body_goal_position[1],body_goal_position[2],yaw);
+            ros::Time time = ros::Time::now();
+            float dt = time.toSec() - m_time.toSec();
+            lab::Error error;
+            error.time = dt;
+            error.x = body_goal_position[0];
+            error.y = body_goal_position[1];
+            error.z = body_goal_position[2];
+            m_puberror.publish(error);
             msg.linear.x = m_pidX.update(0.0, body_goal_position[0]);
             msg.linear.y = m_pidY.update(0.0, body_goal_position[1]);
             msg.linear.z = m_pidZ.update(0.0, body_goal_position[2]);
@@ -274,6 +286,7 @@ private:
     std::string m_target;
     std::string m_pose;
     ros::Publisher m_pub;
+    ros::Publisher m_puberror;
     tf::TransformListener m_listener;
     PID m_pidX;
     PID m_pidY;
@@ -293,6 +306,7 @@ private:
     float m_endX;
     float m_endY;
     float m_endZ;
+    ros::Time m_time;
 };
 
 int main(int argc, char **argv)

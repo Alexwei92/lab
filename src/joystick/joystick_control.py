@@ -7,6 +7,7 @@ import rospy
 from crazyflie_driver.srv import UpdateParams
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
+from lab.msg import Joyfilter
 
 MAX_THROTTLE = 60000
 MIN_THROTTLE = 10000

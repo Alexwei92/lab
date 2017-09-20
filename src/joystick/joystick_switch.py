@@ -24,26 +24,30 @@ class Switch():
 		self.joy.axes1 = -0.0
 		self.joy.axes2 = -0.0
 		self.joy.axes3 = -1.0
+		self.sctrl = [-0.0, -0.0]
 		self.state = 'static-hover'
 
 		self.msg = PoseStamped()
 		self.msg.header.seq = 0
-    	self.msg.header.stamp = rospy.Time.now()
-    	#self.start_time = self.msg.header.stamp
-	    self.msg.header.frame_id = "/world"
-	    self.msg.pose.position.x = 0.0
-	    self.msg.pose.position.y = 0.0
-	    self.msg.pose.position.z = 0.5
-	    quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
-	    self.msg.pose.orientation.x = quaternion[0]
-	    self.msg.pose.orientation.y = quaternion[1]
-	    self.msg.pose.orientation.z = quaternion[2]
-	    self.msg.pose.orientation.w = quaternion[3]
+    		self.msg.header.stamp = rospy.Time.now()
+    		#self.start_time = self.msg.header.stamp
+		self.msg.header.frame_id = "/world"
+		self.msg.pose.position.x = self.x_origin
+		self.msg.pose.position.y = self.y_origin
+		self.msg.pose.position.z = self.z_max
+		quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
+		self.msg.pose.orientation.x = quaternion[0]
+		self.msg.pose.orientation.y = quaternion[1]
+		self.msg.pose.orientation.z = quaternion[2]
+		self.msg.pose.orientation.w = quaternion[3]
 		rospy.Service('/static_hover', Empty, self.switch2static)
 		rospy.Service('/dynamic_hover', Empty, self.switch2dynamic)
 
 	def switch2static(self, req):
 		self.state = 'static-hover'
+		self.msg.pose.position.x = self.x_origin
+		self.msg.pose.position.y = self.y_origin
+		self.msg.pose.position.z = self.z_max
 		return EmptyResponse()
 	def switch2dynamic(self, req):
 		self.state = 'dynamic-hover'
@@ -57,16 +61,31 @@ class Switch():
 		self.joy.axes3 = a*data.axes[3] + (1-a)*self.joy.axes3
 		return self.joy	
 
+	
+	def trunc(self, value):
+		if abs(value) < 1e-3:	
+			return 0.0
+		else:
+ 			return value
+
 	def linear_map(self, x, r1_min, r1_max, r2_min, r2_max):
 		output = (x-r1_min)/(r1_max-r1_min)*(r2_max-r2_min)+r2_min
-		if abs(output)<1e-3:
-			output = 0.0
-		return output
+		return self.trunc(output)
+	
 
 	def mapping(self,data):
+		if data.axes[4] != self.sctrl[0]:
+			self.sctrl[0] = data.axes[4]
+		else:
+			self.sctrl[0] = 0.0
+		if data.axes[5] != self.sctrl[1]:
+			self.sctrl[1] = data.axes[5]
+		else:
+			self.sctrl[1] = 0.0
+
 		if self.state == 'static-hover':
-			self.msg.pose.position.x = 0.0
-			self.msg.pose.position.y = 0.0
+			self.msg.pose.position.x = self.msg.pose.position.x - self.trunc(self.sctrl[0])*0.3
+			self.msg.pose.position.y = self.msg.pose.position.y + self.trunc(self.sctrl[1])*0.3
 			self.msg.pose.position.z = 0.5
 			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
 			self.msg.pose.orientation.x = quaternion[0]
@@ -95,7 +114,7 @@ if __name__ == '__main__':
 	y_origin = rospy.get_param("~y_origin", 0.0)
 	x_max = rospy.get_param("~x_max", 0.5)
 	y_max = rospy.get_param("~y_max", 0.5)
-	z_max = rospy.get_param("~z_max", 1.0)
+	z_max = rospy.get_param("~z_max", 0.8)
 	yaw_max = rospy.get_param("~yaw_max", 120)
 
 	goal = Switch(x_origin, y_origin, x_max, y_max, z_max, yaw_max)

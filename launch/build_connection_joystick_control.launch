@@ -1,7 +1,7 @@
 <launch>
-  <arg name="uri" default="radio://0/100/2M/E7E7E7E701" />
+  <arg name="uri" default="radio://0/100/2M/E7E7E7E705" />
   <arg name="joy_dev" default="/dev/input/js0" />
-  <arg name="frame" default="drone1"/>
+  <arg name="frame" default="drone5"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
 
   <!-- Optitrack Connection -->
@@ -11,10 +11,6 @@
   <node name="joy" pkg="joy" type="joy_node" output="screen">
       <param name="dev" value="$(arg joy_dev)"/>
   </node>	
-
-  <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
-      <param name="joy_topic" value="/joy"/>
-  </node>
 
   <!-- Crazyflie Server-->
   <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch" />
@@ -39,6 +35,10 @@
     <node name="pose" pkg="lab" type="joystick_switch.py" output="screen">
 	<param name="name" value="goal"/>
 	<param name="rate" value="150"/>
+    </node>
+
+    <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
+      <param name="joy_topic" value="/joy"/>
     </node>
    </group>
 
