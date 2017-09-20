@@ -239,14 +239,18 @@ private:
 			body_goal_position, 
             		roll, pitch, yaw);
             //ROS_INFO("MY: %.4f, %.4f, %.4f %.4f",body_goal_position[0],body_goal_position[1],body_goal_position[2],yaw);
-            ros::Time time = ros::Time::now();
-            float dt = time.toSec() - m_time.toSec();
-            lab::Error error;
-            error.time = dt;
-            error.x = body_goal_position[0];
-            error.y = body_goal_position[1];
-            error.z = body_goal_position[2];
-            m_puberror.publish(error);
+            if (m_state == Automatic)
+            {
+                ros::Time time = ros::Time::now();
+                float dt = time.toSec() - m_time.toSec();
+                lab::Error error;
+                error.time = dt;
+                error.x = body_goal_position[0];
+                error.y = body_goal_position[1];
+                error.z = body_goal_position[2];
+                m_puberror.publish(error);
+
+            }
             msg.linear.x = m_pidX.update(0.0, body_goal_position[0]);
             msg.linear.y = m_pidY.update(0.0, body_goal_position[1]);
             msg.linear.z = m_pidZ.update(0.0, body_goal_position[2]);
