@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # Formation of three drones
 #
-#       *
-#      - -
+#     * - *
+#     - - -
 #     * - *
 #
 # Author: Peng Wei
@@ -32,9 +32,10 @@ class Formation():
 		self.joy.axes1 	= -0.0
 		self.joy.axes2 	= -0.0
 		self.joy.axes3 	= -1.0
-		self.r1 	= [0.577, 0.0, 0.0]
-		self.r2 	= [-0.289, 0.5, 0.0]
-		self.r3 	= [-0.289, -0.5, 0.0]
+		self.r1 	= [0.5, 0.5, 0.0]
+		self.r2 	= [-0.5, 0.5, 0.0]
+		self.r3 	= [-0.5, -0.5, 0.0]
+		self.r4		= [0.5, -0.5, 0.0]
 		self.phi 	= 0.0
 		self.theta 	= 0.0
 		self.psi 	= 0.0
@@ -94,8 +95,10 @@ class Formation():
 			r = self.r1
 		elif index == 2:
 			r = self.r2
-		elif index ==3:
+		elif index == 3:
 			r = self.r3
+		elif index == 4:
+			r = self.r4
 		
 		rel = self.rotation(r,self.phi,self.theta,self.psi)
 		msg = PoseStamped()
@@ -132,9 +135,11 @@ class Formation():
 		self.data = data
 
 	def update(self):
-		self.r1 = [0.577, 0.0, 0.0]
-		self.r2 = [-0.289, 0.5, 0.0]
-		self.r3 = [-0.289, -0.5, 0.0]
+		self.r1 	= [0.5, 0.5, 0.0]
+		self.r2 	= [-0.5, 0.5, 0.0]
+		self.r3 	= [-0.5, -0.5, 0.0]
+		self.r4		= [0.5, -0.5, 0.0]
+		
 		self.psi = 0.0
 		if self.state == 'static-hover': 
 			self.msg.pose.position.x = self.x_leader
@@ -172,9 +177,10 @@ class Formation():
 				self.state = 'static-hover'
 			
 		elif self.state == 'line-formation':
-			self.r1 = [0.0, 0.0, 0.0]
-			self.r2 = [0.0, 0.75, 0.0]
-			self.r3 = [0.0, -0.75, 0.0]
+			self.r1 = [0.577, 0.0, 0.0]
+			self.r2 = [-0.289, 0.5, 0.0]
+			self.r3 = [-0.289, -0.5, 0.0]
+			self.r4 = [0,0,0]
 			joy = self.filter_joy(self.data)
 			self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_leader-self.x_max, self.x_leader+self.x_max)
 			self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_leader-self.y_max, self.y_leader+self.y_max)
@@ -202,6 +208,7 @@ if __name__ == '__main__':
 	pub1 = rospy.Publisher("/goal1", PoseStamped, queue_size=5)
 	pub2 = rospy.Publisher("/goal2", PoseStamped, queue_size=5)
 	pub3 = rospy.Publisher("/goal3", PoseStamped, queue_size=5)
+	pub4 = rospy.Publisher("/goal4", PoseStamped, queue_size=5)
 
 	while not rospy.is_shutdown():
 		goal.msg.header.seq += 1
@@ -211,4 +218,5 @@ if __name__ == '__main__':
 		pub1.publish(goal.subordinate(1))
 		pub2.publish(goal.subordinate(2))
 		pub3.publish(goal.subordinate(3))
+		pub4.publish(goal.subordinate(4))
 		rate.sleep()
