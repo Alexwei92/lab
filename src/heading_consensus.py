@@ -10,11 +10,16 @@
 import rospy
 import tf
 import math
+import rosbag
 
+
+from std_msgs.msg import Int32
 from std_srvs.srv import Empty, EmptyResponse
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import PoseStamped
 import math
+
+bag = rosbag.Bag('test.bag')
 
 class Heading():
 	def __init__(self, x, y, z, yaw, cmd, delay, bias):
@@ -27,7 +32,9 @@ class Heading():
 		self.cmd = cmd
 		self.delay = delay
 		self.bias = bias
-		
+
+		self.listener_yaw = self.initial_yaw
+		self.talker1_yaw = self.initial_yaw
 		self.listener_previous = PoseStamped()
 		self.state = 'stand-by'
 		rospy.Service('/consensus', Empty, self.switch2consensus)
@@ -80,6 +87,9 @@ class Heading():
 			self.msg.pose.orientation.y = quaternion[1]
 			self.msg.pose.orientation.z = quaternion[2]
 			self.msg.pose.orientation.w = quaternion[3]
+			i = Int32()
+			i.data = yaw			
+			bag.write('yaw', i)
 
 if __name__ == '__main__':
 	rospy.init_node('heading')
@@ -107,3 +117,4 @@ if __name__ == '__main__':
 		goal.update()
 		pub.publish(goal.msg)
 		rate.sleep()
+	bag.close()

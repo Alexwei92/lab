@@ -51,7 +51,7 @@ class Controller():
 		    rospy.loginfo("TakeOff requested!")
  		if i == 3 and data.buttons[i] == 1:
 		    self._switch2consensus()
-		if i == 4 and data.buttons[i] == 1;
+		if i == 4 and data.buttons[i] == 1:
 		    self._switch2standby()
  		#if i == 3 and data.buttons[i] == 1:
 		 #   self._switch2static()

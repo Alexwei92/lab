@@ -1,5 +1,5 @@
 <launch>
-  <arg name="uri" default="radio://1/95/2M/E7E7E7E707" />
+  <arg name="uri" default="radio://0/120/2M/E7E7E7E706" />
   <arg name="joy_dev" default="/dev/input/js0" />
   <arg name="frame" default="drone7"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
