@@ -48,15 +48,16 @@
 			<param name="joy_topic" value="/joy"/>
 		</node>
 
-		<node name="heading" pkg="lab" type="heading_consensus.py" output="screen">
+		<node name="formation" pkg="lab" type="formation_consensus.py" output="screen">
 			<param name="listener" value="$(arg pose1)" />
 			<param name="talker1" value="$(arg pose2)" />
 			<param name="rate" value="60" />
 			<param name="x" value="0.5" />
 			<param name="y" value="0.5" />
 			<param name="z" value="0.5" />
-			<param name="yaw" value="10" />
-			<param name="cmd" value="20"/>
+			<param name="yaw" value="0" />
+			<param name="cmdx" value="1"/>
+			<param name="cmdy" value="0"/>
 		</node>
 	</group>
 
@@ -82,15 +83,16 @@
 			<param name="joy_topic" value="/joy"/>
 		</node>
 
-		<node name="heading" pkg="lab" type="heading_consensus.py" output="screen">
+		<node name="formation" pkg="lab" type="formation_consensus.py" output="screen">
 			<param name="listener" value="$(arg pose2)" />
 			<param name="talker1" value="$(arg pose3)" />
 			<param name="rate" value="60" />
 			<param name="x" value="-0.5" />
 			<param name="y" value="0.5" />
 			<param name="z" value="0.5" />
-			<param name="yaw" value="-10" />
-			<param name="cmd" value="20"/>
+			<param name="yaw" value="0" />
+			<param name="cmdx" value="0"/>
+			<param name="cmdy" value="-2"/>
 		</node>
 	</group-->
 
@@ -116,15 +118,17 @@
 			<param name="joy_topic" value="/joy"/>
 		</node>
 
-		<node name="heading" pkg="lab" type="heading_consensus.py" output="screen">
+		<node name="formation" pkg="lab" type="formation_consensus.py" output="screen">
 			<param name="listener" value="$(arg pose3)" />
 			<param name="talker1" value="$(arg pose4)" />
 			<param name="rate" value="60" />
 			<param name="x" value="-0.5" />
 			<param name="y" value="-0.5" />
 			<param name="z" value="0.5" />
-			<param name="yaw" value="-20" />
-			<param name="cmd" value="20"/>
+			<param name="yaw" value="0" />
+			<param name="cmdx" value="-2"/>
+			<param name="cmdy" value="0"/>
+
 		</node>
 	</group>
 
@@ -150,15 +154,16 @@
 			<param name="joy_topic" value="/joy"/>
 		</node>
 
-		<node name="heading" pkg="lab" type="heading_consensus.py" output="screen">
+		<node name="formation" pkg="lab" type="formation_consensus.py" output="screen">
 			<param name="listener" value="$(arg pose4)" />
 			<param name="talker1" value="$(arg pose1)" />
 			<param name="rate" value="60" />
 			<param name="x" value="0.5" />
 			<param name="y" value="-0.5" />
 			<param name="z" value="0.5" />
-			<param name="yaw" value="30" />
-			<param name="cmd" value="20"/>
+			<param name="yaw" value="0" />
+			<param name="cmdx" value="0"/>
+			<param name="cmdy" value="2"/>
 		</node>
 	</group>
 

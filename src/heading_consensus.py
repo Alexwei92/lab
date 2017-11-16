@@ -10,16 +10,11 @@
 import rospy
 import tf
 import math
-import rosbag
 
-
-from std_msgs.msg import Int32
 from std_srvs.srv import Empty, EmptyResponse
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import PoseStamped
 import math
-
-bag = rosbag.Bag('test.bag')
 
 class Heading():
 	def __init__(self, x, y, z, yaw, cmd, delay, bias):
@@ -45,6 +40,7 @@ class Heading():
 		self.previous_time = rospy.Time.now()
 		#self.previous_value = self.initial_yaw
 		rospy.loginfo("Start!")
+		bag.close()
 		return EmptyResponse()
 
 	def switch2standby(self, req):
@@ -67,7 +63,6 @@ class Heading():
 							data.pose.orientation.z,data.pose.orientation.w])
 		self.talker1_yaw = yaw + self.bias
 
-
 	def update(self):
 		if self.state == 'stand-by': 
 			self.msg.header.stamp = rospy.Time.now()
@@ -87,9 +82,8 @@ class Heading():
 			self.msg.pose.orientation.y = quaternion[1]
 			self.msg.pose.orientation.z = quaternion[2]
 			self.msg.pose.orientation.w = quaternion[3]
-			i = Int32()
-			i.data = yaw			
-			bag.write('yaw', i)
+			self.previous_time = current_time
+
 
 if __name__ == '__main__':
 	rospy.init_node('heading')
@@ -117,4 +111,3 @@ if __name__ == '__main__':
 		goal.update()
 		pub.publish(goal.msg)
 		rate.sleep()
-	bag.close()
