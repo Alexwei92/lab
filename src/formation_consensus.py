@@ -24,10 +24,18 @@ class Heading():
 		self.msg.pose.position.x = x
 		self.msg.pose.position.y = y
 		self.msg.pose.position.z = z
+		quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, self.initial_yaw)
+		self.msg.pose.orientation.x = quaternion[0]
+		self.msg.pose.orientation.y = quaternion[1]
+		self.msg.pose.orientation.z = quaternion[2]
+		self.msg.pose.orientation.w = quaternion[3]
 		self.cmd = cmd
 		self.delay = delay
 		self.bias = bias
 		
+		self.listener = PoseStamped()
+		self.talker1 = PoseStamped()
+
 		self.listener_previous = PoseStamped()
 		self.state = 'stand-by'
 		rospy.Service('/consensus', Empty, self.switch2consensus)
@@ -51,31 +59,25 @@ class Heading():
 		#self.data = data
 
 	def update_listener(self, data):
-		(roll,pitch,yaw) = tf.transformations.euler_from_quaternion([data.pose.orientation.x,data.pose.orientation.y,\
-							data.pose.orientation.z,data.pose.orientation.w])
-		self.listener_yaw = yaw
+		self.listener_x = data.pose.position.x
+		self.listener_y = data.pose.position.y
 
 	def update_talker1(self, data):
-		(roll,pitch,yaw) = tf.transformations.euler_from_quaternion([data.pose.orientation.x,data.pose.orientation.y,\
-							data.pose.orientation.z,data.pose.orientation.w])
-		self.talker1_yaw = yaw + self.bias
-
-
+		self.listener_x = data.pose.position.x + bias
+		self.listener_y = data.pose.position.y + bias
+		
 	def update(self):
 		if self.state == 'stand-by': 
 			self.msg.header.stamp = rospy.Time.now()
-			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, self.initial_yaw)
-			self.msg.pose.orientation.x = quaternion[0]
-			self.msg.pose.orientation.y = quaternion[1]
-			self.msg.pose.orientation.z = quaternion[2]
-			self.msg.pose.orientation.w = quaternion[3]
 		elif self.state == 'consensus':
 			self.msg.header.stamp = rospy.Time.now()
 			current_time = rospy.Time.now()
 			dt = current_time.to_sec() - self.previous_time.to_sec();
-			x_dot = 0.1*(self.talker1_yaw-self.listener_yaw) - 1.0*(self.listener_yaw-self.cmd)
-			yaw = self.listener_yaw + x_dot*dt
-			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
+			x_dot = 0.1*(self.talker1_x-self.listener_x) - 1.0*(self.listener_x-self.cmd)
+			y_dot = 0.1*(self.talker1_y-self.listener_y) - 1.0*(self.listener_y-self.cmd)
+			x = self.listener_x + x_dot*dt
+			y = self.listener_y + y_dot*dt
+			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, self.initial_yaw)
 			self.msg.pose.orientation.x = quaternion[0]
 			self.msg.pose.orientation.y = quaternion[1]
 			self.msg.pose.orientation.z = quaternion[2]

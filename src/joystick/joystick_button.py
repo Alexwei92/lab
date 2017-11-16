@@ -30,6 +30,7 @@ class Controller():
 	#self._switch2line = rospy.ServiceProxy('/line_formation', Empty)
 
 	self._switch2consensus = rospy.ServiceProxy('/consensus', Empty)
+	self._switch2standby = rospy.ServiceProxy('/standby', Empty)
 
         # subscribe to the joystick at the end to make sure that all required
         # services were found
@@ -50,6 +51,8 @@ class Controller():
 		    rospy.loginfo("TakeOff requested!")
  		if i == 3 and data.buttons[i] == 1:
 		    self._switch2consensus()
+		if i == 4 and data.buttons[i] == 1;
+		    self._switch2standby()
  		#if i == 3 and data.buttons[i] == 1:
 		 #   self._switch2static()
 		    #rospy.loginfo("Switch to Static Hover!")
