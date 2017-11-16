@@ -3,7 +3,7 @@
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <lab/Error.h>
+/*#include <lab/Error.h> */
 #include <math.h>
 
 
@@ -81,7 +81,7 @@ public:
     {
         ros::NodeHandle n1;
         m_pub = n1.advertise<geometry_msgs::Twist>("cmd_vel", 10);
-        m_puberror = n1.advertise<lab::Error>("error", 10);
+        /* m_puberror = n1.advertise<lab::Error>("error", 10); */
         m_subscribeGoal = n1.subscribe(m_target, 1, &Controller::update_goal, this);
         m_subscribeCurrent = n1.subscribe(m_pose,1, &Controller::update_current, this);
 
@@ -243,12 +243,14 @@ private:
             {
                 ros::Time time = ros::Time::now();
                 float dt = time.toSec() - m_time.toSec();
+                /*
                 lab::Error error;
                 error.time = dt;
                 error.x = body_goal_position[0];
                 error.y = body_goal_position[1];
                 error.z = body_goal_position[2];
                 m_puberror.publish(error);
+                */
 
             }
             msg.linear.x = m_pidX.update(0.0, body_goal_position[0]);

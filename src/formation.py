@@ -192,13 +192,16 @@ class Formation():
 			self.msg.pose.orientation.z = quaternion[2]
 			self.msg.pose.orientation.w = quaternion[3]
 			self.phi 	= 0.0
-			self.theta  	= 0.0
+			self.theta  = 0.0
 			self.psi 	= yaw
 			#rospy.loginfo("Time: %f, x = %f, y= %f, z= %f", dt, self.msg.pose.position.x, self.msg.pose.position.y,self.msg.pose.position.z)
 
 if __name__ == '__main__':
 	rospy.init_node('formation')
-	name = rospy.get_param("~name", "/goal")     # publish to
+	name = rospy.get_param("~name", "goal")     # publish to
+	source1 = 
+	source2 = 
+
 	r    = rospy.get_param("~rate", 50.0)	    # frequency 
 	rate = rospy.Rate(r)
 	
