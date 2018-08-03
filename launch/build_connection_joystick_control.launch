@@ -1,7 +1,7 @@
 <launch>
-  <arg name="uri" default="radio://1/100/2M/E7E7E7E704" />
+  <arg name="uri" default="radio://0/80/2M/E7E7E7E701" />
   <arg name="joy_dev" default="/dev/input/js0" />
-  <arg name="frame" default="drone4"/>
+  <arg name="frame" default="cf1"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
 
   <!-- Optitrack Connection -->
@@ -34,7 +34,7 @@
 
     <node name="pose" pkg="lab" type="joystick_switch.py" output="screen">
 	<param name="name" value="goal"/>
-	<param name="rate" value="150"/>
+	<param name="rate" value="50"/>
     </node>
 
     <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">

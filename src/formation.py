@@ -63,18 +63,18 @@ class Formation():
 	def switch2static(self, req):
 		self.state = 'static-hover'
 		self.psi = 0.0
-		rospy.loginfo("Switch to static hover!")
+		#rospy.loginfo("Switch to static hover!")
 		return EmptyResponse()
 
 	def switch2dynamic(self, req):
 		self.state = 'dynamic-hover'
 		self.start_time = rospy.Time.now()
-		rospy.loginfo("Switch to dynamic hover!")
+		#rospy.loginfo("Switch to dynamic hover!")
 		return EmptyResponse()
 
 	def switch2line(self, req):
 		self.state = 'line-formation'
-		rospy.loginfo("Switch to line formation!")
+		#rospy.loginfo("Switch to line formation!")
 		return EmptyResponse()
 
 	def rotation(self, source, phi, theta, psi):
@@ -211,7 +211,7 @@ if __name__ == '__main__':
 	pub1 = rospy.Publisher("/goal1", PoseStamped, queue_size=5)
 	pub2 = rospy.Publisher("/goal2", PoseStamped, queue_size=5)
 	pub3 = rospy.Publisher("/goal3", PoseStamped, queue_size=5)
-	pub4 = rospy.Publisher("/goal4", PoseStamped, queue_size=5)
+	#pub4 = rospy.Publisher("/goal4", PoseStamped, queue_size=5)
 
 	while not rospy.is_shutdown():
 		goal.msg.header.seq += 1
@@ -221,5 +221,5 @@ if __name__ == '__main__':
 		pub1.publish(goal.subordinate(1))
 		pub2.publish(goal.subordinate(2))
 		pub3.publish(goal.subordinate(3))
-		pub4.publish(goal.subordinate(4))
+		#pub4.publish(goal.subordinate(4))
 		rate.sleep()

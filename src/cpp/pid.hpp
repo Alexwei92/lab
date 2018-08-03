@@ -29,6 +29,17 @@ public:
     {
     }
 
+    void updateparam(float kp, float kd, float ki, float minOutput, float maxOutput, float integratorMin, float integratorMax)
+    {
+	m_kp = kp;
+        m_kd = kd;
+        m_ki = ki;
+        m_minOutput = minOutput;
+        m_maxOutput = maxOutput;
+        m_integratorMin = integratorMin;
+        m_integratorMax = integratorMax;
+    }
+
     void reset()
     {
         m_integral = 0;

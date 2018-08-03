@@ -8,12 +8,12 @@ project(lab)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+
   roscpp
   rospy
   std_msgs
   message_generation
   joy
-  vrpn_client_ros
   tf
 )
 
@@ -110,7 +110,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES lab
-  CATKIN_DEPENDS joy vrpn_client_ros message_runtime tf
+  CATKIN_DEPENDS joy message_runtime tf
 #  DEPENDS system_lib
 )
 
@@ -139,6 +139,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(pid_controller src/cpp/pid_controller.cpp)
+add_executable(pid_controller2 src/cpp/pid_controller2.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -152,7 +153,9 @@ add_executable(pid_controller src/cpp/pid_controller.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pid_controller ${catkin_LIBRARIES})
+target_link_libraries(pid_controller2 ${catkin_LIBRARIES})
 add_dependencies(pid_controller pid_controll_generate_messages_cpp)
+add_dependencies(pid_controller2 pid_controll_generate_messages_cpp)
 #############
 ## Install ##
 #############
