@@ -1,7 +1,7 @@
 <launch>
-  <arg name="uri" default="radio://0/80/2M/E7E7E7E701" />
+  <arg name="uri" default="radio://0/100/2M/E7E7E7E703" />
   <arg name="joy_dev" default="/dev/input/js0" />
-  <arg name="frame" default="cf1"/>
+  <arg name="frame" default="cf3"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
 
   <!-- Optitrack Connection -->
@@ -29,7 +29,7 @@
         <param name="target" value="goal"/>
 	<param name="pose" value="$(arg pose)"/>
 	<param name="frequency" value="150"/>
-        <rosparam command='load' file="$(find lab)/config/P.yaml"/>
+        <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
     </node>
 
     <node name="pose" pkg="lab" type="joystick_switch.py" output="screen">

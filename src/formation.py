@@ -19,8 +19,8 @@ import math
 
 class Formation():
 	def __init__(self):
-		self.x_leader 	= 0.0
-		self.y_leader 	= 0.0
+		self.x_leader 	= -0.5
+		self.y_leader 	= -0.5
 		self.z_leader 	= 0.5
 		self.yaw_leader = 0.0
 		self.x_max 	= 0.5
@@ -177,15 +177,15 @@ class Formation():
 				self.state = 'static-hover'
 			
 		elif self.state == 'line-formation':
-			self.r1 = [0.577, 0.0, 0.0]
-			self.r2 = [-0.289, 0.5, 0.0]
-			self.r3 = [-0.289, -0.5, 0.0]
+			self.r1 = [-0.0, 0.5, 0.0]
+			self.r2 = [-0.0, -0.0, 0.0]
+			self.r3 = [-0.0, -0.5, 0.0]
 			self.r4 = [0,0,0]
 			joy = self.filter_joy(self.data)
 			self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_leader-self.x_max, self.x_leader+self.x_max)
 			self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_leader-self.y_max, self.y_leader+self.y_max)
 			self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0, self.z_max)
-			yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
+			yaw =  self.linear_map(joy.axes2*0.6,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
 			quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
 			self.msg.pose.orientation.x = quaternion[0]
 			self.msg.pose.orientation.y = quaternion[1]
@@ -199,9 +199,6 @@ class Formation():
 if __name__ == '__main__':
 	rospy.init_node('formation')
 	name = rospy.get_param("~name", "goal")     # publish to
-	source1 = 
-	source2 = 
-
 	r    = rospy.get_param("~rate", 50.0)	    # frequency 
 	rate = rospy.Rate(r)
 	

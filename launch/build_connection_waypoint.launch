@@ -1,7 +1,7 @@
 <launch>
-  <arg name="uri" default="radio://0/80/2M/E7E7E7E704" />
+  <arg name="uri" default="radio://0/100/2M/E7E7E7E703" />
   <arg name="joy_dev" default="/dev/input/js0" />
-  <arg name="frame" default="cf4"/>
+  <arg name="frame" default="cf3"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
 
   <!-- Optitrack Connection -->
