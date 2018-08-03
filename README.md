@@ -1,1 +1,10 @@
 # lab
+## Address for CF2
+    cf1: 0/80/2M/E7E7E7E701
+    cf2: 0/90/2M/E7E7E7E702
+    cf3: 0/100/2M/E7E7E7E703
+    cf4: 0/80/2M/E7E7E7E704
+    cf5: 0/90/2M/E7E7E7E705
+    cf6: 0/100/2M/E7E7E7E706
+    cf7: 0/80/2M/E7E7E7E707
+    cf8: 0/90/2M/E7E7E7E708
