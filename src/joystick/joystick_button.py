@@ -46,7 +46,7 @@ class Controller():
 		    rospy.loginfo("Landing requested!")
                 if i == 1 and data.buttons[i] == 1:
                     self._emergency()
-		    #rospy.loginfo("Emergency requested!")
+		    rospy.loginfo("Emergency requested!")
                 if i == 2 and data.buttons[i] == 1:
                     self._takeoff()
 		    rospy.loginfo("TakeOff requested!")
@@ -71,5 +71,5 @@ class Controller():
 if __name__ == '__main__':
     rospy.init_node('joystick_button', anonymous=True)
     joy_topic = rospy.get_param("~joy_topic", "/joy")
-    controller = Controller(joy_topic)
+    controller = Controller(joy_topic)	
     rospy.spin()
