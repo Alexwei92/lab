@@ -9,15 +9,15 @@ from std_srvs.srv import Empty
 class Controller():
     def __init__(self, joy_topic):
 	#rospy.wait_for_service('emergency')
-        self._emergency = rospy.ServiceProxy('/emergency', Empty)
+        self._emergency = rospy.ServiceProxy('emergency', Empty)
 	#rospy.loginfo("created emergency service!")
 
 	#rospy.wait_for_service('land')
-        self._land = rospy.ServiceProxy('/land', Empty)
+        self._land = rospy.ServiceProxy('land', Empty)
  	#rospy.loginfo("created land service!")
 
 	#rospy.wait_for_service('takeoff')
-        self._takeoff = rospy.ServiceProxy('/takeoff', Empty)
+        self._takeoff = rospy.ServiceProxy('takeoff', Empty)
 	#rospy.loginfo("created takeoff service!")
 	
 	#rospy.wait_for_service('/static_hover')
