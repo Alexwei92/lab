@@ -1,10 +1,20 @@
+<!-- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Filename: build_connection_no_tracking.launch
+Last Update: 10/03/2018
+
+Description: For a manual control of a single CF by joysticks 
+			 without Optitrack cameras.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-->
+
 <launch>
-  <arg name="uri" default="radio://0/95/2M/E7E7E7E707" />
+  <arg name="uri" default="radio://0/80/2M/E7E7E7E701" />
   <arg name="joy_dev" default="/dev/input/js0" />
   
   <!-- Joystick -->
   <node name="joy_node" pkg="joy" type="joy_node" output="screen">
-    <param name="dev" value="$(arg joy_dev)"/>
+	<param name="dev" value="$(arg joy_dev)"/>
   </node>
 
   <!-- Crazyflie Server-->
@@ -12,15 +22,11 @@
   
   <!-- Connect to the default CF2 -->
   <group ns="crazyflie">
-    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
-      <param name="uri" value="$(arg uri)" />
-      <param name="tf_prefix" value="crazyflie" />
-      <param name="enable_logging_imu" value="false" />
-      <param name="enable_logging_temperature" value="false" />     
-      <param name="enable_logging_magnetic_field" value="false" />
-      <param name="enable_logging_pressure_field" value="false" />
-      <param name="enable_logging_battery" value="false" />
-    </node>
+  	<include file="$(find crazyflie_driver)/launch/crazyflie_add.launch">
+		<arg name="uri" value="$(arg uri)" />
+		<arg name="tf_prefix" value="crazyflie" />
+		<arg name="enable_logging" value="False" />
+  	</include>
   </group>
 
 </launch>

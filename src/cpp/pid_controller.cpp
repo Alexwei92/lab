@@ -3,9 +3,7 @@
 #include <std_srvs/Empty.h>
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
-/*#include <lab/Error.h> */
 #include <math.h>
-
 
 #include "pid.hpp"
 
@@ -20,13 +18,12 @@ double get(
 class Controller
 {
 public:
-
     Controller(
-	const std::string& target,
+        const std::string& target,
         const std::string& pose,
         const ros::NodeHandle& n)
         : m_target(target)
-	, m_pose(pose)
+        , m_pose(pose)
         , m_pub()
         , m_pidX(
             get(n, "PIDs/X/kp"),
@@ -81,20 +78,18 @@ public:
     {
         ros::NodeHandle n1;
         m_pub = n1.advertise<geometry_msgs::Twist>("cmd_vel", 10);
-        /* m_puberror = n1.advertise<lab::Error>("error", 10); */
         m_subscribeGoal = n1.subscribe(m_target, 1, &Controller::update_goal, this);
         m_subscribeCurrent = n1.subscribe(m_pose,1, &Controller::update_current, this);
 
         m_serviceTakeoff = n1.advertiseService("takeoff", &Controller::takeoff, this);
         m_serviceLand = n1.advertiseService("land", &Controller::land, this);
         m_serviceEmergency = n1.advertiseService("emergency", &Controller::emergency, this);
-
     }
 
     void run(double frequency)
     {
-        ros::NodeHandle node;
-        ros::Timer timer = node.createTimer(ros::Duration(1.0/frequency), &Controller::iteration, this);
+        ros::NodeHandle n2;
+        ros::Timer timer = n2.createTimer(ros::Duration(1.0/frequency), &Controller::iteration, this);
         ros::spin();
     }
 
@@ -140,21 +135,21 @@ private:
     }
 
     float transform_world_to_body(
-	const float* source,
-	float* target, 
-	const float phi,
-    	const float theta,
-	const float psi)
-    {ros::Publisher m_pub;
-	float sp    = sinf(phi);
-	float cp    = cosf(phi);
-	float st    = sinf(theta);
-	float ct    = cosf(theta);
-    	float ss    = sinf(psi);
-    	float cs    = cosf(psi);
-	target[0] = ct*cs*source[0] + ct*ss*source[1] -st*source[2];
-    	target[1] = (sp*st*cs-cp*ss)*source[0] + (sp*st*ss+cp*cs)*source[1] + sp*ct*source[2];
-    	target[2] = (cp*st*cs+sp*ss)*source[0] + (cp*st*ss-sp*cs)*source[1]+cp*ct*source[2];
+        const float* source,
+        float* target, 
+        const float phi,
+        const float theta,
+        const float psi)
+    {
+        float sp    = sinf(phi);
+        float cp    = cosf(phi);
+        float st    = sinf(theta);
+        float ct    = cosf(theta);
+        float ss    = sinf(psi);
+        float cs    = cosf(psi);
+        target[0] = ct*cs*source[0] + ct*ss*source[1] -st*source[2];
+        target[1] = (sp*st*cs-cp*ss)*source[0] + (sp*st*ss+cp*cs)*source[1] + sp*ct*source[2];
+        target[2] = (cp*st*cs+sp*ss)*source[0] + (cp*st*ss-sp*cs)*source[1]+cp*ct*source[2];
     }
 
     void iteration(const ros::TimerEvent& e)
@@ -164,7 +159,6 @@ private:
         {
         case TakingOff:
             {
-
             pidReset();
             m_state=Automatic;
             m_pidZ.setIntegral(45000 / m_pidZ.ki());
@@ -185,25 +179,23 @@ private:
                     msg.linear.z = m_thrust;
                     m_pub.publish(msg);
                 }
-*/
+        */
             }
             break;
         case Landing:
             {
                 m_endZ = m_endZ - 0.15 * dt;
-                //m_endZ = m_endZ>0?m_endZ:0.0f;
                 m_goal.pose.position.x = m_endX;
                 m_goal.pose.position.y = m_endY;
                 m_goal.pose.position.z = m_endZ;
-                //ROS_INFO("m_endZ: %f",m_endZ);
 
                 if (m_current.pose.position.z <= 0.05) {
                     m_endZ = 0;
                     m_state = Idle;
                     geometry_msgs::Twist msg;
-                    m_pub.publish(msg);
-                    break;
+                    m_pub.publish(msg);            
                 }
+            break;
             }
         case Automatic:
             {
@@ -226,37 +218,21 @@ private:
                     )).getRPY(roll, pitch, yaw);
 
                 geometry_msgs::Twist msg;
-		// transform from world to body frame
-		float world_goal_position[3] = {
-            		m_goal.pose.position.x-m_current.pose.position.x,
-            		m_goal.pose.position.y-m_current.pose.position.y,
-            		m_goal.pose.position.z-m_current.pose.position.z};
+                // transform from world to body frame
+                // error = goal - true
+                float world_goal_position[3] = {
+                    m_goal.pose.position.x-m_current.pose.position.x,
+                    m_goal.pose.position.y-m_current.pose.position.y,
+                    m_goal.pose.position.z-m_current.pose.position.z};
 
+                float body_goal_position[3]={0,0,0};
+                transform_world_to_body(world_goal_position, body_goal_position, 
+                    roll, pitch, yaw);
 
-        	float body_goal_position[3]={0,0,0};
-		transform_world_to_body(
-			world_goal_position, 
-			body_goal_position, 
-            		roll, pitch, yaw);
-            //ROS_INFO("MY: %.4f, %.4f, %.4f %.4f",body_goal_position[0],body_goal_position[1],body_goal_position[2],yaw);
-            if (m_state == Automatic)
-            {
-                ros::Time time = ros::Time::now();
-                float dt = time.toSec() - m_time.toSec();
-                /*
-                lab::Error error;
-                error.time = dt;
-                error.x = body_goal_position[0];
-                error.y = body_goal_position[1];
-                error.z = body_goal_position[2];
-                m_puberror.publish(error);
-                */
-
-            }
+            // in body frame
             msg.linear.x = m_pidX.update(0.0, body_goal_position[0]);
             msg.linear.y = m_pidY.update(0.0, body_goal_position[1]);
             msg.linear.z = m_pidZ.update(0.0, body_goal_position[2]);
-            //msg.linear.z = std::max(std::min(msg.linear.z, 60000.0), 0.0);
             msg.angular.z = m_pidYaw.update(yaw, yaw_goal);
             m_pub.publish(msg);
             }
@@ -265,7 +241,6 @@ private:
             {
                 geometry_msgs::Twist msg;
                 m_pub.publish(msg);
-
             }
             break;
         case Emergency:
@@ -278,7 +253,6 @@ private:
     }
 
 private:
-
     enum State
     {
         Idle = 0,
@@ -292,8 +266,8 @@ private:
     std::string m_target;
     std::string m_pose;
     ros::Publisher m_pub;
-    ros::Publisher m_puberror;
-    tf::TransformListener m_listener;
+    //ros::Publisher m_puberror;
+    //tf::TransformListener m_listener;
     PID m_pidX;
     PID m_pidY;
     PID m_pidZ;
@@ -306,7 +280,6 @@ private:
     ros::ServiceServer m_serviceTakeoff;
     ros::ServiceServer m_serviceLand;
     ros::ServiceServer m_serviceEmergency;
-	
     float m_thrust;
     float m_startZ;
     float m_endX;
@@ -326,7 +299,7 @@ int main(int argc, char **argv)
   std::string pose;
   n.getParam("pose", pose);
   double frequency;
-  n.param("frequency", frequency, 50.0);
+  n.param("frequency", frequency, 150.0);
 
   Controller controller(target, pose, n);
   controller.run(frequency);

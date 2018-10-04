@@ -31,7 +31,7 @@ public:
 
     void updateparam(float kp, float kd, float ki, float minOutput, float maxOutput, float integratorMin, float integratorMax)
     {
-	m_kp = kp;
+        m_kp = kp;
         m_kd = kd;
         m_ki = ki;
         m_minOutput = minOutput;
@@ -60,25 +60,23 @@ public:
 
     float update(float value, float targetValue)
     {
-    float ratio = 0.6;
+        float ratio = 0.6;
         ros::Time time = ros::Time::now();
         float dt = time.toSec() - m_previousTime.toSec();
+        // error = target - true
         float error = targetValue - value;
-        //float error_dot = error*dt;
-        // m_integral += fabs(error_dot)>m_integratorMax?error_dot:0.0;
         m_integral += error * dt;
         m_integral = std::max(std::min(m_integral, m_integratorMax), m_integratorMin);
         float p = m_kp * error;
         float d = 0;
         float m_difference = (error - m_previousError) / dt;
-        //m_difference = fabs(m_difference)>m_integratorMax?m_difference:0.0;
         if (dt > 0)
         {
+            // A low-pass filter
             m_previous_LP_Diff = ratio*m_difference + (1-ratio)*m_previous_LP_Diff;
-	    d = m_kd * m_previous_LP_Diff;
+            d = m_kd * m_previous_LP_Diff;
         }
         float i = m_ki * m_integral;
-        //ROS_INFO("m_integral: %f", m_integral);
         float output = p + d + i;
         m_previousError = error;
         m_previousTime = time;

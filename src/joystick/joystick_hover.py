@@ -1,16 +1,18 @@
 #!/usr/bin/env python
-# Joystick control with a hovering point
+# static hover and dynamic hover
 # Author: Peng Wei
+# Last Update: 10/03/2018
 
 import rospy
 import tf
 import math
 
+from std_srvs.srv import Empty, EmptyResponse
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import PoseStamped
 from lab.msg import Joyfilter
 
-class Joystick():
+class Switch():
 	def __init__(self, x_origin, y_origin, x_max, y_max, z_max, yaw_max):
 		self.x_origin = x_origin
 		self.y_origin = y_origin
@@ -23,26 +25,35 @@ class Joystick():
 		self.joy.axes1 = -0.0
 		self.joy.axes2 = -0.0
 		self.joy.axes3 = -1.0
+		self.state = 'static-hover'
 
 		self.msg = PoseStamped()
 		self.msg.header.seq = 0
-    		self.msg.header.stamp = rospy.Time.now()
-    		#self.start_time = self.msg.header.stamp
-	    	self.msg.header.frame_id = "/hover"
-	    	self.msg.pose.position.x = self.x_origin
-	    	self.msg.pose.position.y = self.y_origin
-	    	self.msg.pose.position.z = self.z_max
-	    	quaternion = tf.transformations.quaternion_from_euler(0, 0, 0)
-	    	self.msg.pose.orientation.x = quaternion[0]
-	    	self.msg.pose.orientation.y = quaternion[1]
-	    	self.msg.pose.orientation.z = quaternion[2]
-	    	self.msg.pose.orientation.w = quaternion[3]
+		self.msg.header.stamp = rospy.Time.now()
+		self.msg.header.frame_id = "/world"
+		self.msg.pose.position.x = self.x_origin
+		self.msg.pose.position.y = self.y_origin
+		self.msg.pose.position.z = 0.5
+		quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
+		self.msg.pose.orientation.x = quaternion[0]
+		self.msg.pose.orientation.y = quaternion[1]
+		self.msg.pose.orientation.z = quaternion[2]
+		self.msg.pose.orientation.w = quaternion[3]
+		rospy.Service('/static_hover', Empty, self.switch2static)
+		rospy.Service('/dynamic_hover', Empty, self.switch2dynamic)
 
-	def linear_map(self, x, r1_min, r1_max, r2_min, r2_max):
-		output = (x-r1_min)/(r1_max-r1_min)*(r2_max-r2_min)+r2_min
-		if abs(output)<1e-3:
-			output = 0.0
-		return output
+	def switch2static(self, req):
+		self.state = 'static-hover'
+		self.msg.pose.position.x = self.x_origin
+		self.msg.pose.position.y = self.y_origin
+		self.msg.pose.position.z = 0.5
+		return EmptyResponse()
+
+	def switch2dynamic(self, req):
+		self.state = 'dynamic-hover'
+		rospy.loginfo('Be caution about the throttle position!')
+		rospy.sleep(2.0)
+		return EmptyResponse()
 
 	def filter_joy(self, data):
 		a = 0.2
@@ -50,41 +61,50 @@ class Joystick():
 		self.joy.axes1 = a*data.axes[1] + (1-a)*self.joy.axes1
 		self.joy.axes2 = a*data.axes[2] + (1-a)*self.joy.axes2
 		self.joy.axes3 = a*data.axes[3] + (1-a)*self.joy.axes3
-		return self.joy		
+		return self.joy	
 
+	def trunc(self, value):
+		if abs(value) < 1e-3:	
+			return 0.0
+		else:
+			return value
 
-	def mapping(self, data):
-		joy = self.filter_joy(data)
-		#self.msg.pose.position.x = self.linear_map(-data.axes[0],-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
-		#self.msg.pose.position.y = self.linear_map( data.axes[1],-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
-		#self.msg.pose.position.z = self.linear_map( data.axes[3],-1, 1, 0, self.z_max)
-		#yaw =  self.linear_map(data.axes[2],-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
-		
-		self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
-		self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
-		self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0, self.z_max)
-		yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
-		
-		quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
-		self.msg.pose.orientation.x = quaternion[0]
-		self.msg.pose.orientation.y = quaternion[1]
-		self.msg.pose.orientation.z = quaternion[2]
-		self.msg.pose.orientation.w = quaternion[3]
+	def linear_map(self, x, r1_min, r1_max, r2_min, r2_max):
+		output = (x-r1_min)/(r1_max-r1_min)*(r2_max-r2_min)+r2_min
+		return self.trunc(output)
 
+	def mapping(self,data):
+		if self.state == 'static-hover':
+			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
+			self.msg.pose.orientation.x = quaternion[0]	
+			self.msg.pose.orientation.y = quaternion[1]
+			self.msg.pose.orientation.z = quaternion[2]
+			self.msg.pose.orientation.w = quaternion[3]
+		elif self.state == 'dynamic-hover':
+			joy = self.filter_joy(data)		
+			self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
+			self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
+			self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0.05, self.z_max)
+			yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
+			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
+			self.msg.pose.orientation.x = quaternion[0]
+			self.msg.pose.orientation.y = quaternion[1]
+			self.msg.pose.orientation.z = quaternion[2]
+			self.msg.pose.orientation.w = quaternion[3]
 
 if __name__ == '__main__':
-	rospy.init_node('joystick_hover')
+	rospy.init_node('pose')
 	name = rospy.get_param("~name", '/goal') 
-	r = rospy.get_param("~rate", 50)	 
-	rate = rospy.Rate(r)
-	x_origin = rospy.get_param("~x_origin", -1.0)
+	x_origin = rospy.get_param("~x_origin", 0.0)
 	y_origin = rospy.get_param("~y_origin", 0.0)
 	x_max = rospy.get_param("~x_max", 0.5)
 	y_max = rospy.get_param("~y_max", 0.5)
-	z_max = rospy.get_param("~z_max", 1.0)
+	z_max = rospy.get_param("~z_max", 0.8)
 	yaw_max = rospy.get_param("~yaw_max", 120)
+	r = rospy.get_param("~rate", 50)	 
+	rate = rospy.Rate(r)
 
-	goal = Joystick(x_origin, y_origin, x_max, y_max, z_max, yaw_max)
+	goal = Switch(x_origin, y_origin, x_max, y_max, z_max, yaw_max)
 	rospy.loginfo("Mapping the joystick input")
 	rospy.Subscriber('/joy', Joy, goal.mapping)
 	pub = rospy.Publisher(name, PoseStamped, queue_size=5)

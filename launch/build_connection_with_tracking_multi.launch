@@ -1,3 +1,12 @@
+<!-- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Filename: build_connection_with_tracking_multi.launch
+Last Update: 10/03/2018
+
+Description: For multiple CFs hovering with Optitrack cameras.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-->
+
 <launch>
   <arg name="uri1" default="radio://1/95/2M/E7E7E7E701" />
   <arg name="uri2" default="radio://0/100/2M/E7E7E7E704" />
@@ -15,101 +24,88 @@
   
   <!-- Joystick -->
   <node name="joy" pkg="joy" type="joy_node" output="screen">
-      <param name="dev" value="$(arg joy_dev)"/>
+	  <param name="dev" value="$(arg joy_dev)"/>
   </node>	
 
   <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
-      <param name="joy_topic" value="/joy"/>
+	  <param name="joy_topic" value="/joy"/>
   </node>
 
   <!-- Crazyflie Server-->
   <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch" />
   <group ns="crazyflie1">
-    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
-        <param name="uri" value="$(arg uri1)" />
-        <param name="tf_prefix" value="crazyflie1" />
-        <param name="enable_logging_imu" value="false" />
-        <param name="enable_logging_temperature" value="false" />     
-        <param name="enable_logging_magnetic_field" value="false" />
-        <param name="enable_logging_pressure_field" value="false" />
-        <param name="enable_logging_battery" value="false" />
-    </node>
+	<include file="$(find crazyflie_driver)/launch/crazyflie_add.launch">
+		<arg name="uri" value="$(arg uri)" />
+		<arg name="tf_prefix" value="crazyflie1" />
+		<arg name="enable_logging" value="False" />
+	</include>
 
-    <node name="pose" pkg="lab" type="static_goal.py" output="screen">
-	<param name="name" value="goal"/>
-	<param name="rate" value="100"/>
-	<param name="x" value="0.5"/>
-	<param name="y" value="0.0"/>
-	<param name="z" value="0.4"/>
-	<param name="yaw" value="0.0"/>
-    </node>
+	<node name="pose" pkg="lab" type="static_goal.py" output="screen">
+		<param name="name" value="goal"/>
+		<param name="rate" value="10"/>
+		<param name="x" value="0.5"/>
+		<param name="y" value="0.0"/>
+		<param name="z" value="0.4"/>
+		<param name="yaw" value="0.0"/>
+	</node>
 
-    <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
-        <param name="target" value="goal"/>
-	<param name="pose" value="$(arg pose1)"/>
-	<param name="frequency" value="100"/>
-        <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
-    </node>
+	<node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
+		<param name="target" value="goal"/>
+		<param name="pose" value="$(arg pose1)"/>
+		<param name="frequency" value="150"/>
+		<rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
+	</node>
   </group>
 
   <group ns="crazyflie2">
-    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
-        <param name="uri" value="$(arg uri2)" />
-        <param name="tf_prefix" value="crazyflie2" />
-        <param name="enable_logging_imu" value="false" />
-        <param name="enable_logging_temperature" value="false" />     
-        <param name="enable_logging_magnetic_field" value="false" />
-        <param name="enable_logging_pressure_field" value="false" />
-        <param name="enable_logging_battery" value="false" />
-    </node>
+	<include file="$(find crazyflie_driver)/launch/crazyflie_add.launch">
+		<arg name="uri" value="$(arg uri2)" />
+		<arg name="tf_prefix" value="crazyflie2" />
+		<arg name="enable_logging" value="False" />
+	</include>
 
-    <node name="pose" pkg="lab" type="static_goal.py" output="screen">
+	<node name="pose" pkg="lab" type="static_goal.py" output="screen">
 	<param name="name" value="goal"/>
-	<param name="rate" value="100"/>
+	<param name="rate" value="10"/>
 	<param name="x" value="-0.5"/>
 	<param name="y" value="0.0"/>
 	<param name="z" value="0.4"/>
 	<param name="yaw" value="0.0"/>
-    </node>
+	</node>
 
-    <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
-        <param name="target" value="goal"/>
-	<param name="pose" value="$(arg pose2)"/>
-	<param name="frequency" value="100"/>
-        <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
-    </node>
+	<node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
+		<param name="target" value="goal"/>
+		<param name="pose" value="$(arg pose2)"/>
+		<param name="frequency" value="150"/>
+		<rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
+	</node>
   </group>
 
   <!--group ns="crazyflie3">
-    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
-        <param name="uri" value="$(arg uri3)" />
-        <param name="tf_prefix" value="crazyflie3" />
-        <param name="enable_logging_imu" value="false" />
-        <param name="enable_logging_temperature" value="false" />     
-        <param name="enable_logging_magnetic_field" value="false" />
-        <param name="enable_logging_pressure_field" value="false" />
-        <param name="enable_logging_battery" value="false" />
-    </node>
+	<include file="$(find crazyflie_driver)/launch/crazyflie_add.launch">
+		<arg name="uri" value="$(arg uri3)" />
+		<arg name="tf_prefix" value="crazyflie3" />
+		<arg name="enable_logging" value="False" />
+	</include>
 
   <node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
-      <param name="joy_topic" value="/joy"/>
+	  <param name="joy_topic" value="/joy"/>
   </node>
 
-    <node name="pose" pkg="lab" type="static_goal.py" output="screen">
+	<node name="pose" pkg="lab" type="static_goal.py" output="screen">
 	<param name="name" value="goal"/>
-	<param name="rate" value="60"/>
+	<param name="rate" value="10"/>
 	<param name="x" value="-0.5"/>
 	<param name="y" value="-0.5"/>
 	<param name="z" value="0.4"/>
 	<param name="yaw" value="0.0"/>
-    </node>
+	</node>
 
-    <node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
-        <param name="target" value="goal"/>
-	<param name="pose" value="$(arg pose3)"/>
-	<param name="frequency" value="100"/>
-        <rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
-    </node>
+	<node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
+		<param name="target" value="goal"/>
+		<param name="pose" value="$(arg pose3)"/>
+		<param name="frequency" value="150"/>
+		<rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
+	</node>
   </group -->
 </launch>
-
