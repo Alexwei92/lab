@@ -22,11 +22,15 @@ Description: For a manual control of a single CF by joysticks
   
   <!-- Connect to the default CF2 -->
   <group ns="crazyflie">
-  	<include file="$(find crazyflie_driver)/launch/crazyflie_add.launch">
+	<include file="$(find crazyflie_driver)/launch/crazyflie_add.launch">
 		<arg name="uri" value="$(arg uri)" />
 		<arg name="tf_prefix" value="crazyflie" />
 		<arg name="enable_logging" value="False" />
-  	</include>
-  </group>
+	</include>
 
+
+	<node name="pose" pkg="lab" type="joystick_control.py" output="screen">
+		<param name="joy_topic" value="/joy" />
+	</node>
+  </group>
 </launch>
