@@ -44,6 +44,9 @@ Description: For a manual control of a single CF with Optitrack cameras.
 	<node name="pose" pkg="lab" type="joystick_hover.py" output="screen">
 		<param name="name" value="goal"/>
 		<param name="rate" value="30"/>
+		<param name="x_origin" value="0.0" />
+		<param name="y_origin" value="0.0" />
+		<param name="z_max" value="1.0" />
 	</node>
    </group>
 

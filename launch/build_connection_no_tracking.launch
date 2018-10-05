@@ -9,7 +9,7 @@ Description: For a manual control of a single CF by joysticks
 -->
 
 <launch>
-  <arg name="uri" default="radio://0/80/2M/E7E7E7E701" />
+  <arg name="uri" default="radio://0/100/2M/E7E7E7E703" />
   <arg name="joy_dev" default="/dev/input/js0" />
   
   <!-- Joystick -->
@@ -27,7 +27,10 @@ Description: For a manual control of a single CF by joysticks
 		<arg name="tf_prefix" value="crazyflie" />
 		<arg name="enable_logging" value="False" />
 	</include>
-
+	
+	<node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
+		<param name="joy_topic" value="/joy"/>
+	</node>
 
 	<node name="pose" pkg="lab" type="joystick_control.py" output="screen">
 		<param name="joy_topic" value="/joy" />

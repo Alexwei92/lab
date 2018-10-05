@@ -189,13 +189,13 @@ private:
                 m_goal.pose.position.y = m_endY;
                 m_goal.pose.position.z = m_endZ;
 
-                if (m_current.pose.position.z <= 0.05) {
-                    m_endZ = 0;
+                if (m_current.pose.position.z - m_startZ < 0.015) {
+                    m_endZ = 0.0;
                     m_state = Idle;
                     geometry_msgs::Twist msg;
-                    m_pub.publish(msg);            
+                    m_pub.publish(msg);    
+                    break;        
                 }
-            break;
             }
         case Automatic:
             {

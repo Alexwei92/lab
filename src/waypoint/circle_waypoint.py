@@ -8,6 +8,7 @@ import math
 
 from sensor_msgs.msg import Joy
 from geometry_msgs.msg import PoseStamped
+from std_srvs.srv import Empty, EmptyResponse
 
 class Joystick():
 	def __init__(self, x_origin, y_origin, z_origin, z_max, radius):
@@ -16,50 +17,65 @@ class Joystick():
 		self.z_origin = z_origin
 		self.z_max    = z_max
 		self.radius   = radius
-		
+		self.status   = "Idle"
 		self.msg = PoseStamped()
 		self.msg.header.seq = 0
 		self.msg.header.stamp = rospy.Time.now()
-		self.start_time = self.msg.header.stamp
 		self.msg.header.frame_id = "/world"
 		self.msg.pose.position.x = self.x_origin
 		self.msg.pose.position.y = self.y_origin
-		self.msg.pose.position.z = self.z_max
+		self.msg.pose.position.z = self.z_origin
 		quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
 		self.msg.pose.orientation.x = quaternion[0]
 		self.msg.pose.orientation.y = quaternion[1]
 		self.msg.pose.orientation.z = quaternion[2]
 		self.msg.pose.orientation.w = quaternion[3]
+		rospy.Service("/startTraj", Empty, self.countTime)
+
+	def countTime(self, req):
+		if self.status != "Mission":
+			self.status = "Mission"
+			self.start_time = rospy.Time.now()
+			rospy.loginfo("Start the Trajectory soon!")
+		return EmptyResponse()
 
 	def linear_map(self, x, r1_min, r1_max, r2_min, r2_max):
 		return (x-r1_min)/(r1_max-r1_min)*(r2_max-r2_min)+r2_min
 
 	def update(self):
-		current_time = rospy.Time.now()
-		dt = current_time.to_sec() - self.start_time.to_sec();
+		if self.status == "Idle":
+			self.msg.pose.position.x = self.x_origin
+			self.msg.pose.position.y = self.y_origin
+			self.msg.pose.position.z = self.z_origin
+
+		if self.status == "Mission":
+			current_time = rospy.Time.now()
+			dt = current_time.to_sec() - self.start_time.to_sec();
+			
+			# adjust the during
+			t1 = 5.0
+			t2 = 35.0
+			t3 = 40.0
+			t4 = 70.0
+			w1 = 4*math.pi/(t2-t1)
+			w2 = 4*math.pi/(t4-t3)
+			w3 = math.pi/(t4-t3)
+			if (dt > t1 and dt <= t2):
+				self.msg.pose.position.x = self.radius*math.cos(w1*(dt-t1)) + self.x_origin
+				self.msg.pose.position.y = self.radius*math.sin(w1*(dt-t1)) + self.y_origin
+				self.msg.pose.position.z = self.z_origin
+			elif (dt > t3 and dt <= t4):
+				self.msg.pose.position.x = self.radius*math.cos(w2*(dt-t3)) + self.x_origin
+				self.msg.pose.position.y = self.radius*math.sin(w2*(dt-t3)) + self.y_origin
+				self.msg.pose.position.z = self.z_origin + (self.z_max-self.z_origin)*math.sin(w3*(dt-t3))
+			elif (dt > t4 + 5.0):
+				self.status = "Idle"
+				rospy.loginfo("End of the Trajectory!")
+			else :		
+				self.msg.pose.position.x = self.radius*math.cos(0.0) + self.x_origin
+				self.msg.pose.position.y = self.radius*math.sin(0.0) + self.y_origin
+				self.msg.pose.position.z = self.z_origin
 		
-		# adjust the during
-		t1 = 10.0
-		t2 = 40.0
-		t3 = 45.0
-		t4 = 75.0
-		w1 = 4*math.pi/(t2-t1)
-		w2 = 4*math.pi/(t4-t3)
-		w3 = math.pi/(t4-t3)
-
-		if (dt > t1 and dt <= t2):
-			self.msg.pose.position.x = self.radius*math.cos(w1*(dt-t1)) + self.x_origin
-			self.msg.pose.position.y = self.radius*math.sin(w1*(dt-t1)) + self.y_origin
-			self.msg.pose.position.z = self.z_origin
-		elif (dt > t3 and dt <= t4):
-			self.msg.pose.position.x = self.radius*math.cos(w2*(dt-t3)) + self.x_origin
-			self.msg.pose.position.y = self.radius*math.sin(w2*(dt-t3)) + self.y_origin
-			self.msg.pose.position.z = self.z_origin + (self.z_max-self.z_origin)*math.sin(w3*(dt-t3))
-		else :		
-			self.msg.pose.position.x = self.radius*math.cos(0.0) + self.x_origin
-			self.msg.pose.position.y = self.radius*math.sin(0.0) + self.y_origin
-			self.msg.pose.position.z = self.z_origin
-
 		return self.msg
 
 if __name__ == '__main__':
@@ -75,7 +91,6 @@ if __name__ == '__main__':
 	rate = rospy.Rate(r)
 
 	goal = Joystick(x_origin, y_origin, z_origin, z_max, radius)
-	#rospy.loginfo("Start waypoint control")
 	pub = rospy.Publisher(name, PoseStamped, queue_size=10)
 
 	while not rospy.is_shutdown():

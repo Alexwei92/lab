@@ -8,9 +8,9 @@ Description: For a single CF hovering with Optitrack cameras.
 -->
 
 <launch>
-  <arg name="uri" default="radio://0/100/2M/E7E7E7E704" />
+  <arg name="uri" default="radio://0/100/2M/E7E7E7E703" />
   <arg name="joy_dev" default="/dev/input/js0" />
-  <arg name="frame" default="drone4"/>
+  <arg name="frame" default="cf3"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
 
   <!-- Optitrack Connection -->
@@ -36,7 +36,7 @@ Description: For a single CF hovering with Optitrack cameras.
 
 	<node name="pose" pkg="lab" type="static_goal.py" output="screen">
 		<param name="name" value="goal"/>
-		<param name="rate" value="50"/>
+		<param name="rate" value="30"/>
 		<param name="x" value="0.0"/>
 		<param name="y" value="0.0"/>
 		<param name="z" value="0.5"/>

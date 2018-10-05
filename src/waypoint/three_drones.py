@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # Formation of three drones
 #
-#       ^ y
-#       |
-#     2 | 1
-#     * | *
-#     --|----->x 
-#     * | *
-#     3   4
+#         ^ x
+#         |
+#       1 | 4
+#       * | *
+#  y <----|---- 
+#       * | *
+#       2   3
 #
 # Author: Peng Wei 
 # Last Update: 10/04/2018
@@ -29,7 +29,7 @@ class Formation():
 		self.yaw_leader = 0.0
 		self.x_max 		= 0.5
 		self.y_max 		= 0.5
-		self.z_max 		= 1.0
+		self.z_max 		= 1.5
 		self.yaw_max 	= 120
 		self.joy 		= Joyfilter()
 		self.joy.axes0 	= -0.0
@@ -64,17 +64,24 @@ class Formation():
 		
 
 	def switch2static(self, req):
-		self.state = 'static-hover'
-		self.psi = 0.0
+		if self.state != 'static-hover':
+			self.state = 'static-hover'
+			self.psi = 0.0
+			rospy.loginfo("Switch to Static Hover!")
 		return EmptyResponse()
 
 	def switch2dynamic(self, req):
-		self.state = 'dynamic-hover'
-		self.start_time = rospy.Time.now()
+		if self.state != 'dynamic-hover':
+			self.state = 'dynamic-hover'
+			self.start_time = rospy.Time.now()
+			rospy.loginfo("Switch to Dynamic Hover!")
 		return EmptyResponse()
 
 	def switch2line(self, req):
-		self.state = 'line-formation'
+		if self.state != 'line-formation':
+			self.state = 'line-formation'
+			rospy.loginfo("Switch to Line Formation!")
+			rospy.loginfo("Be caution about your throttle position!")
 		return EmptyResponse()
 
 	# from body frame to inertial frame
@@ -117,11 +124,14 @@ class Formation():
 		return msg	 			   				
 
 	def filter_joy(self, data):
-		a = 0.2
-		self.joy.axes0 = a*data.axes[0] + (1-a)*self.joy.axes0
-		self.joy.axes1 = a*data.axes[1] + (1-a)*self.joy.axes1
-		self.joy.axes2 = a*data.axes[2] + (1-a)*self.joy.axes2
-		self.joy.axes3 = a*data.axes[3] + (1-a)*self.joy.axes3
+		a0 = 0.6   # x pos
+		a1 = 0.6   # y pos
+		a2 = 0.1  # yaw
+		a3 = 0.8   # z pos
+		self.joy.axes0 = a0*data.axes[0] + (1-a0)*self.joy.axes0
+		self.joy.axes1 = a1*data.axes[1] + (1-a1)*self.joy.axes1
+		self.joy.axes2 = a2*data.axes[2] + (1-a2)*self.joy.axes2
+		self.joy.axes3 = a3*data.axes[3] + (1-a3)*self.joy.axes3
 		return self.joy	
 
 	def linear_map(self, x, r1_min, r1_max, r2_min, r2_max):
@@ -148,6 +158,7 @@ class Formation():
 			self.msg.pose.orientation.y = quaternion[1]
 			self.msg.pose.orientation.z = quaternion[2]
 			self.msg.pose.orientation.w = quaternion[3]
+
 		elif self.state == 'dynamic-hover':
 			current_time = rospy.Time.now()
 			dt = current_time.to_sec() - self.start_time.to_sec();
@@ -182,7 +193,7 @@ class Formation():
 			joy = self.filter_joy(self.data)
 			self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_leader-self.x_max, self.x_leader+self.x_max)
 			self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_leader-self.y_max, self.y_leader+self.y_max)
-			self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0.05, self.z_max)
+			self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, self.z_leader, self.z_max)
 			yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
 			quaternion = tf.transformations.quaternion_from_euler(0, 0, yaw)
 			self.msg.pose.orientation.x = quaternion[0]

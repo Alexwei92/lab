@@ -11,7 +11,7 @@ if __name__ == '__main__':
 	rospy.init_node('static_pose', anonymous=True)
 	name = rospy.get_param("~name","/goal")     # publish to
 	r = rospy.get_param("~rate", 30)	# frequency
-	x = rospy.get_param("~x", -0.1)	# meter
+	x = rospy.get_param("~x", 0.0)	# meter
 	y = rospy.get_param("~y", 0.0)	# meter
 	z = rospy.get_param("~z", 1.0)	# meter
 	yaw = rospy.get_param("~yaw", 0.0)  # radian

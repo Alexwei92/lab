@@ -49,13 +49,13 @@ class Controller():
 					rospy.loginfo("TakeOff requested!")
 				if i == 3 and data.buttons[i] == 1:
 					self._switch2static()
-					rospy.loginfo("Switch to Static Hover!")
+					#rospy.loginfo("Switch to Static Hover!")
 				if i == 4 and data.buttons[i] == 1:
 					self._switch2dynamic()
-					rospy.loginfo("Switch to Dynamic Hover!")
+					#rospy.loginfo("Switch to Dynamic Hover!")
 				if i == 5 and data.buttons[i] == 1:
 					self._switch2line()
-					rospy.loginfo("Switch to Line Formation!")
+					#rospy.loginfo("Switch to Line Formation!")
 
 				#if i == 6 and data.buttons[i] == 1:
 					#self._update()
