@@ -8,9 +8,9 @@ Description: For a single CF hovering with Optitrack cameras.
 -->
 
 <launch>
-  <arg name="uri" default="radio://0/100/2M/E7E7E7E703" />
+  <arg name="uri" default="radio://0/94/1M/E7E7E7E7E7" />
   <arg name="joy_dev" default="/dev/input/js0" />
-  <arg name="frame" default="cf3"/>
+  <arg name="frame" default="body1"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
 
   <!-- Optitrack Connection -->

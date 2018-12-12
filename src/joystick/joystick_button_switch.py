@@ -14,11 +14,11 @@ class Controller():
 		#rospy.loginfo("created emergency service!")
 
 		#rospy.wait_for_service('land')
-		self._land = rospy.ServiceProxy('land', Empty)
+		self._land = rospy.ServiceProxy('landing', Empty)
 		#rospy.loginfo("created land service!")
 
 		#rospy.wait_for_service('takeoff')
-		self._takeoff = rospy.ServiceProxy('takeoff', Empty)
+		self._takeoff = rospy.ServiceProxy('take_off', Empty)
 		#rospy.loginfo("created takeoff service!")
 	
 		#rospy.wait_for_service('/static_hover')

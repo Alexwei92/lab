@@ -14,7 +14,7 @@ from lab.msg import Joyfilter
 MAX_THROTTLE = 65000
 MIN_THROTTLE = 36000
 ARM_THROTTLE = 20000
-DEADZONE 	 = 0.2
+DEADZONE     = 0.2
 
 class Joystick():
 	def __init__(self, Max_roll, Max_pitch, Max_yaw, Max_thrust):
@@ -30,9 +30,9 @@ class Joystick():
 		self.joy.axes3 = -0.1 + DEADZONE
 		self.status = "Idle"
 		self.firstcount = 1
-		rospy.Service("takeoff", Empty, self.arming)
-		rospy.Service("land", Empty, self.disarm)
-		rospy.Service("emergency", Empty, self.emergency)
+		rospy.Service("take_off", Empty, self.arming)
+		rospy.Service("landing", Empty, self.disarm)
+		rospy.Service("emergency", Em	pty, self.emergency)
 
 	def arming(self,req):
 		self.status = "Armed"
@@ -75,8 +75,10 @@ class Joystick():
 			self.twist = Twist()
 		elif self.status == "Armed":
 			if data.axes[3] < -1+DEADZONE or self.firstcount == 1:
-				self.twist = Twist()
+				self.twist.linear.y = 0
+				self.twist.linear.x = 0
 				self.twist.linear.z = ARM_THROTTLE
+				self.twist.angular.z = 0	
 				self.joy_reset()
 				self.firstcount = 0
 			else:
@@ -92,13 +94,14 @@ if __name__ == '__main__':
 	Max_roll   = rospy.get_param("~Max_roll_angle", 30.0)
 	Max_pitch  = rospy.get_param("~Max_pitch_angle", 30.0)
 	Max_yaw    = rospy.get_param("~Max_yaw_rate", 120.0)
-	Max_thrust = rospy.get_param("~Max_thrust", 0.80)
+	Max_thrust = rospy.get_param("~Max_thrust", 0.9)
 	#Min_thrust = rospy.get_param("~Min_thrust", 0.25)
 
 	joystick = Joystick(Max_roll, Max_pitch, Max_yaw, Max_thrust)
-	pub = rospy.Publisher('cmd_vel', Twist, queue_size=5)
+	pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
 	rate = rospy.Rate(50)
 	rospy.Subscriber(name, Joy, joystick.mapping)
 	while not rospy.is_shutdown():
+		#rospy.loginfo(joystick.twist.linear)
 		pub.publish(joystick.twist)
 		rate.sleep()

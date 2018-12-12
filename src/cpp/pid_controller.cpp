@@ -81,8 +81,8 @@ public:
         m_subscribeGoal = n1.subscribe(m_target, 1, &Controller::update_goal, this);
         m_subscribeCurrent = n1.subscribe(m_pose,1, &Controller::update_current, this);
 
-        m_serviceTakeoff = n1.advertiseService("takeoff", &Controller::takeoff, this);
-        m_serviceLand = n1.advertiseService("land", &Controller::land, this);
+        m_serviceTakeoff = n1.advertiseService("take_off", &Controller::takeoff, this);
+        m_serviceLand = n1.advertiseService("landing", &Controller::land, this);
         m_serviceEmergency = n1.advertiseService("emergency", &Controller::emergency, this);
     }
 

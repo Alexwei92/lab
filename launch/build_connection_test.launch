@@ -1,0 +1,32 @@
+<!-- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Filename: build_connection_no_tracking.launch
+Last Update: 10/03/2018
+
+Description: For a manual control of a single CF by joysticks 
+       without Optitrack cameras.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-->
+
+<launch>
+  <arg name="uri" default="radio://0/110/2M/E7E7E7E710" />
+  <arg name="joy_dev" default="/dev/input/js0" />
+  
+
+  <!-- Crazyflie Server-->
+  <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch" />
+  
+  <!-- Connect to the default CF2 -->
+  <group ns="crazyflie">
+    <node pkg="crazyflie_driver" type="crazyflie_add" name="crazyflie_add" output="screen">
+    <param name="uri" value="$(arg uri)" />
+    <param name="tf_prefix" value="crazyflie" />
+    <param name="enable_logging" value="true" />
+
+    <rosparam>
+      /motorPowerSet: {enable: 1, m1: 10000, m2: 10000, m3: 10000, m4: 10000}
+    </rosparam>
+  </node>
+
+  </group>
+</launch>

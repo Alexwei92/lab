@@ -13,9 +13,9 @@ class Controller():
 		self._emergency = rospy.ServiceProxy('emergency', Empty)
 
 		#rospy.wait_for_service('land')
-		self._land = rospy.ServiceProxy('land', Empty)
+		self._land = rospy.ServiceProxy('landing', Empty)
 		#rospy.wait_for_service('takeoff')
-		self._takeoff = rospy.ServiceProxy('takeoff', Empty)
+		self._takeoff = rospy.ServiceProxy('take_off', Empty)
 
 		self._startTraj = rospy.ServiceProxy('/startTraj', Empty)
 		
