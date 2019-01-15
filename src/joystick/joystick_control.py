@@ -32,7 +32,7 @@ class Joystick():
 		self.firstcount = 1
 		rospy.Service("take_off", Empty, self.arming)
 		rospy.Service("landing", Empty, self.disarm)
-		rospy.Service("emergency", Em	pty, self.emergency)
+		rospy.Service("emergency", Empty, self.emergency)
 
 	def arming(self,req):
 		self.status = "Armed"

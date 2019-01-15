@@ -9,7 +9,7 @@ Description: For a manual control of a single CF by joysticks
 -->
 
 <launch>
-  <arg name="uri" default="radio://0/110/2M/E7E7E7E701" />
+  <arg name="uri" default="radio://0/94/2M" />
   <arg name="joy_dev" default="/dev/input/js0" />
   
   <!-- Joystick -->
