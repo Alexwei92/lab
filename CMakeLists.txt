@@ -139,7 +139,6 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(pid_controller src/cpp/pid_controller.cpp)
-add_executable(pid_controller_tune src/cpp/pid_controller_tune.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -153,9 +152,8 @@ add_executable(pid_controller_tune src/cpp/pid_controller_tune.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(pid_controller ${catkin_LIBRARIES})
-target_link_libraries(pid_controller_tune ${catkin_LIBRARIES})
 add_dependencies(pid_controller pid_controll_generate_messages_cpp)
-add_dependencies(pid_controller_tune pid_controll_generate_messages_cpp)
+
 #############
 ## Install ##
 #############
