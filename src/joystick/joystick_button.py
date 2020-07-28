@@ -17,8 +17,6 @@ class Controller():
 		#rospy.wait_for_service('takeoff')
 		self._takeoff = rospy.ServiceProxy('take_off', Empty)
 
-		self._startTraj = rospy.ServiceProxy('/startTraj', Empty)
-		
 		self._update = rospy.ServiceProxy('update', Empty)
 
 		# subscribe to the joystick at the end to make sure that all required
@@ -38,13 +36,6 @@ class Controller():
 				if i == 2 and data.buttons[i] == 1:
 					self._takeoff()
 					#rospy.loginfo("TakeOff requested!")
-				#if i == 3 and data.buttons[i] == 1:
-					#self._switch2consensus()
-				#if i == 4 and data.buttons[i] == 1:
-					#self._switch2standby()
-				if i == 5 and data.buttons[i] == 1:
-					self._startTraj()
-					#rospy.loginfo("Switch to line formation!")
 				if i == 6 and data.buttons[i] == 1:
 					self._update()
 					rospy.loginfo("Update Params!")
