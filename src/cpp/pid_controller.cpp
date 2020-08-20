@@ -21,9 +21,11 @@ public:
     Controller(
         const std::string& target,
         const std::string& pose,
+        const float dt,
         const ros::NodeHandle& n)
         : m_target(target)
         , m_pose(pose)
+        , m_dt(dt)
         , m_pub()
         , m_pidX(
             get(n, "PIDs/X/kp"),
@@ -33,6 +35,7 @@ public:
             get(n, "PIDs/X/maxOutput"),
             get(n, "PIDs/X/integratorMin"),
             get(n, "PIDs/X/integratorMax"),
+            dt,
             "x")
         , m_pidY(
             get(n, "PIDs/Y/kp"),
@@ -42,6 +45,7 @@ public:
             get(n, "PIDs/Y/maxOutput"),
             get(n, "PIDs/Y/integratorMin"),
             get(n, "PIDs/Y/integratorMax"),
+            dt,
             "y")
         , m_pidZ(
             get(n, "PIDs/Z/kp"),
@@ -51,6 +55,7 @@ public:
             get(n, "PIDs/Z/maxOutput"),
             get(n, "PIDs/Z/integratorMin"),
             get(n, "PIDs/Z/integratorMax"),
+            dt,
             "z")
         , m_pidYaw(
             get(n, "PIDs/Yaw/kp"),
@@ -60,6 +65,7 @@ public:
             get(n, "PIDs/Yaw/maxOutput"),
             get(n, "PIDs/Yaw/integratorMin"),
             get(n, "PIDs/Yaw/integratorMax"),
+            dt,
             "yaw")
         , m_state(Idle)
         , m_goal()
@@ -69,12 +75,11 @@ public:
         , m_serviceTakeoff()
         , m_serviceLand()
         , m_serviceEmergency()
-        , m_thrust(0)
-        , m_startZ(0)
-        , m_endX(0)
-        , m_endY(0)
-        , m_endZ(0)
-        , m_time()
+        , m_thrust(0.0)
+        , m_startZ(0.0)
+        , m_endX(0.0)
+        , m_endY(0.0)
+        , m_endZ(0.0)
     {
         ros::NodeHandle n1;
         m_pub = n1.advertise<geometry_msgs::Twist>("cmd_vel", 10);
@@ -86,10 +91,10 @@ public:
         m_serviceEmergency = n1.advertiseService("emergency", &Controller::emergency, this);
     }
 
-    void run(double frequency)
+    void run()
     {
         ros::NodeHandle n2;
-        ros::Timer timer = n2.createTimer(ros::Duration(1.0/frequency), &Controller::iteration, this);
+        ros::Timer timer = n2.createTimer(ros::Duration(m_dt), &Controller::iteration, this);
         ros::spin();
     }
 
@@ -154,15 +159,15 @@ private:
 
     void iteration(const ros::TimerEvent& e)
     {
-        float dt = e.current_real.toSec() - e.last_real.toSec();
+        //float dt = e.current_real.toSec() - e.last_real.toSec();
+
         switch(m_state)
         {
         case TakingOff:
             {
             pidReset();
             m_state=Automatic;
-            m_pidZ.setIntegral(45000 / m_pidZ.ki());
-            m_time = ros::Time::now();
+            m_pidZ.setIntegral(45000 / m_pidZ.get_ki());
 
         /*
                 if (m_current.pose.position.z > m_startZ + 0.05 || m_thrust > 40000)
@@ -184,7 +189,7 @@ private:
             break;
         case Landing:
             {
-                m_endZ = m_endZ - 0.15 * dt;
+                m_endZ = m_endZ - 0.15 * m_dt;
                 m_goal.pose.position.x = m_endX;
                 m_goal.pose.position.y = m_endY;
                 m_goal.pose.position.z = m_endZ;
@@ -221,11 +226,11 @@ private:
                 // transform from world to body frame
                 // error = goal - true
                 float world_goal_position[3] = {
-                    m_goal.pose.position.x-m_current.pose.position.x,
-                    m_goal.pose.position.y-m_current.pose.position.y,
-                    m_goal.pose.position.z-m_current.pose.position.z};
+                    float(m_goal.pose.position.x-m_current.pose.position.x),
+                    float(m_goal.pose.position.y-m_current.pose.position.y),
+                    float(m_goal.pose.position.z-m_current.pose.position.z)};
 
-                float body_goal_position[3]={0,0,0};
+                float body_goal_position[3]={0.0, 0.0, 0.0};
                 transform_world_to_body(world_goal_position, body_goal_position, 
                     roll, pitch, yaw);
 
@@ -233,6 +238,7 @@ private:
             msg.linear.x = m_pidX.update(0.0, body_goal_position[0]);
             msg.linear.y = m_pidY.update(0.0, body_goal_position[1]);
             msg.linear.z = m_pidZ.update(0.0, body_goal_position[2]);
+            // ROS_INFO("Error = %f, Diff = %f, IError = %f", body_goal_position[2], m_pidZ.get_Diff(), m_pidZ.get_integral());
             msg.angular.z = m_pidYaw.update(yaw, yaw_goal);
             m_pub.publish(msg);
             }
@@ -280,12 +286,12 @@ private:
     ros::ServiceServer m_serviceTakeoff;
     ros::ServiceServer m_serviceLand;
     ros::ServiceServer m_serviceEmergency;
+    float m_dt;
     float m_thrust;
     float m_startZ;
     float m_endX;
     float m_endY;
     float m_endZ;
-    ros::Time m_time;
 };
 
 int main(int argc, char **argv)
@@ -299,10 +305,10 @@ int main(int argc, char **argv)
   std::string pose;
   n.getParam("pose", pose);
   double frequency;
-  n.param("frequency", frequency, 150.0);
+  n.param("frequency", frequency, 100.0);
 
-  Controller controller(target, pose, n);
-  controller.run(frequency);
+  Controller controller(target, pose, 1.0/frequency, n);
+  controller.run();
 
   return 0;
 }

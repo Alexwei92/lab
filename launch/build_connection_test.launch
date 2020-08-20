@@ -1,9 +1,9 @@
 <!-- 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Filename: build_connection_with_tracking.launch
-Last Update: 10/03/2018
+Filename: build_connection_test.launch
+Last Update: 08/02/2020
 
-Description: For a single CF hovering with Optitrack cameras.
+Description: test launch file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 -->
 
@@ -13,8 +13,8 @@ Description: For a single CF hovering with Optitrack cameras.
   <arg name="frame" default="cf1"/>
   <arg name="pose" default="/vrpn_client_node/$(arg frame)/pose"/>
 
-  <!-- Optitrack Connection -->
-  <include file="$(find vrpn_client_ros)/launch/optitrack.launch" />
+  <!-- Fake MOCAP -->
+  <node name="mocap" pkg="lab" type="fake_MOCAP.py" output="screen"/>
   
   <!-- Joystick -->
   <node name="joy" pkg="joy" type="joy_node" output="screen">
@@ -24,11 +24,11 @@ Description: For a single CF hovering with Optitrack cameras.
   <!-- Crazyflie Server-->
   <include file="$(find crazyflie_driver)/launch/crazyflie_server.launch" />
   <group ns="crazyflie">
-	<include file="$(find crazyflie_driver)/launch/crazyflie_add.launch">
+	<!-- <include file="$(find crazyflie_driver)/launch/crazyflie_add.launch">
 		<arg name="uri" value="$(arg uri)" />
 		<arg name="tf_prefix" value="crazyflie" />
 		<arg name="enable_logging" value="False" />
-	</include>
+	</include> -->
 
 	<node name="joystick_button" pkg="lab" type="joystick_button.py" output="screen">
 		<param name="joy_topic" value="/joy"/>
@@ -37,8 +37,8 @@ Description: For a single CF hovering with Optitrack cameras.
 	<node name="pose" pkg="lab" type="static_goal.py" output="screen">
 		<param name="name" value="goal"/>
 		<param name="rate" value="30"/>
-		<param name="x" value="-0.7"/>
-		<param name="y" value="-0.3"/>
+		<param name="x" value="0.0"/>
+		<param name="y" value="0.0"/>
 		<param name="z" value="0.5"/>
 		<param name="yaw" value="0.0"/>
 	</node>
@@ -46,7 +46,7 @@ Description: For a single CF hovering with Optitrack cameras.
 	<node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
 		<param name="target" value="goal"/>
 		<param name="pose" value="$(arg pose)"/>
-		<param name="frequency" value="100"/>
+		<param name="frequency" value="100.0"/>
 		<rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
 	</node>
   </group>
