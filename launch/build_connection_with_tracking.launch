@@ -46,7 +46,7 @@ Description: For a single CF hovering with Optitrack cameras.
 	<node name="pid_controller" pkg="lab" type="pid_controller" output="screen">
 		<param name="target" value="goal"/>
 		<param name="pose" value="$(arg pose)"/>
-		<param name="frequency" value="100"/>
+		<param name="frequency" value="50"/>
 		<rosparam command='load' file="$(find lab)/config/drone4.yaml"/>
 	</node>
   </group>

@@ -24,8 +24,7 @@ class Switch():
 		self.joy.axes0 = -0.0
 		self.joy.axes1 = -0.0
 		self.joy.axes2 = -0.0
-		self.joy.axes3 = -1.0
-		self.state = 'static-hover'
+		self.joy.axes3 = -0.0
 
 		self.msg = PoseStamped()
 		self.msg.header.seq = 0
@@ -39,27 +38,14 @@ class Switch():
 		self.msg.pose.orientation.y = quaternion[1]
 		self.msg.pose.orientation.z = quaternion[2]
 		self.msg.pose.orientation.w = quaternion[3]
-		rospy.Service('/static_hover', Empty, self.switch2static)
-		rospy.Service('/dynamic_hover', Empty, self.switch2dynamic)
 
-	def switch2static(self, req):
-		self.state = 'static-hover'
-		self.msg.pose.position.x = self.x_origin
-		self.msg.pose.position.y = self.y_origin
-		self.msg.pose.position.z = 0.5
-		return EmptyResponse()
 
-	def switch2dynamic(self, req):
-		self.state = 'dynamic-hover'
-		rospy.loginfo('Be caution about the throttle position!')
-		rospy.sleep(2.0)
-		return EmptyResponse()
 
 	def filter_joy(self, data):
-		a = 0.2
+		a = 1.0
 		self.joy.axes0 = a*data.axes[0] + (1-a)*self.joy.axes0
 		self.joy.axes1 = a*data.axes[1] + (1-a)*self.joy.axes1
-		self.joy.axes2 = a*data.axes[2] + (1-a)*self.joy.axes2
+		self.joy.axes2 = a*data.axes[4] + (1-a)*self.joy.axes2
 		self.joy.axes3 = a*data.axes[3] + (1-a)*self.joy.axes3
 		return self.joy	
 
@@ -74,23 +60,17 @@ class Switch():
 		return self.trunc(output)
 
 	def mapping(self,data):
-		if self.state == 'static-hover':
-			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, 0.0)
-			self.msg.pose.orientation.x = quaternion[0]	
-			self.msg.pose.orientation.y = quaternion[1]
-			self.msg.pose.orientation.z = quaternion[2]
-			self.msg.pose.orientation.w = quaternion[3]
-		elif self.state == 'dynamic-hover':
-			joy = self.filter_joy(data)		
-			self.msg.pose.position.x = self.linear_map(-joy.axes0,-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
-			self.msg.pose.position.y = self.linear_map( joy.axes1,-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
-			self.msg.pose.position.z = self.linear_map( joy.axes3,-1, 1, 0.05, self.z_max)
-			yaw =  self.linear_map(joy.axes2,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
-			quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
-			self.msg.pose.orientation.x = quaternion[0]
-			self.msg.pose.orientation.y = quaternion[1]
-			self.msg.pose.orientation.z = quaternion[2]
-			self.msg.pose.orientation.w = quaternion[3]
+		joy = self.filter_joy(data)		
+		self.msg.pose.position.x = self.linear_map(-joy.axes2,-1, 1, self.x_origin-self.x_max, self.x_origin+self.x_max)
+		self.msg.pose.position.y = self.linear_map( joy.axes3,-1, 1, self.y_origin-self.y_max, self.y_origin+self.y_max)
+		self.msg.pose.position.z = self.linear_map( joy.axes1,-1, 1, 0.1, self.z_max)
+		yaw =  self.linear_map(joy.axes0,-1, 1, -math.radians(self.yaw_max), math.radians(self.yaw_max))
+		quaternion = tf.transformations.quaternion_from_euler(0.0, 0.0, yaw)
+		self.msg.pose.orientation.x = quaternion[0]
+		self.msg.pose.orientation.y = quaternion[1]
+		self.msg.pose.orientation.z = quaternion[2]
+		self.msg.pose.orientation.w = quaternion[3]
+
 
 if __name__ == '__main__':
 	rospy.init_node('pose')
@@ -99,7 +79,7 @@ if __name__ == '__main__':
 	y_origin = rospy.get_param("~y_origin", 0.0)
 	x_max = rospy.get_param("~x_max", 0.5)
 	y_max = rospy.get_param("~y_max", 0.5)
-	z_max = rospy.get_param("~z_max", 0.8)
+	z_max = rospy.get_param("~z_max", 1.0)
 	yaw_max = rospy.get_param("~yaw_max", 120)
 	r = rospy.get_param("~rate", 50)	 
 	rate = rospy.Rate(r)
